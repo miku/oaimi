@@ -21,4 +21,5 @@ Usage
 
 You can apply basic OAI filters:
 
-    $ oaimi -set abc -from 2010-01-01 -until 2010-02-01 http://www.example.com/oai/provider > metadata.xml
+    $ oaimi -set abc -from 2010-01-01 -until 2010-02-01 \
+        http://www.example.com/oai/provider > metadata.xml
