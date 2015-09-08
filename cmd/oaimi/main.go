@@ -1,31 +1,30 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"log"
+	"os"
+	"os/user"
+	"path"
 	"time"
+
+	"github.com/miku/oaimi"
 )
 
-func BeginningOfDay(now time.Time) time.Time {
-	d := time.Duration(-now.Hour()) * time.Hour
-	return now.Truncate(time.Hour).Add(d)
-}
-
-func DateRangeDaily(s, t time.Time) []time.Time {
-	var dates []time.Time
-	b := BeginningOfDay(s)
-	for b.Before(t) {
-		dates = append(dates, b)
-		b = b.Add(24 * time.Hour)
-	}
-	return dates
-}
-
 func main() {
+
+	usr, err := user.Current()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	cacheDir := flag.String("cache", path.Join(usr.HomeDir, ".oaimi"), "oaimi cache dir")
 	set := flag.String("set", "", "OAI set")
 	prefix := flag.String("prefix", "oai_dc", "OAI metadataPrefix")
-	from := flag.String("from", "1970-01-01", "OAI from")
+	from := flag.String("from", "2000-01-01", "OAI from")
 	until := flag.String("until", time.Now().Format("2006-01-02"), "OAI until")
+	verbose := flag.Bool("verbose", false, "print request URLs")
 
 	flag.Parse()
 
@@ -37,6 +36,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	Until, err := time.Parse("2006-01-02", *until)
 	if err != nil {
 		log.Fatal(err)
@@ -47,6 +47,31 @@ func main() {
 	}
 
 	endpoint := flag.Arg(0)
-	log.Printf("%s?verb=ListRecords&metadataPrefix=%s&from=%s&until=%s&set=%s\n", endpoint, *prefix,
-		From.Format("2006-01-02"), Until.Format("2006-01-02"), *set)
+
+	if _, err := os.Stat(*cacheDir); os.IsNotExist(err) {
+		err := os.MkdirAll(*cacheDir, 0755)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	req := oaimi.BatchedRequest{
+		Cache: oaimi.Cache{Directory: *cacheDir},
+		Request: oaimi.Request{
+			Verbose:  *verbose,
+			Verb:     "ListRecords",
+			Set:      *set,
+			Prefix:   *prefix,
+			From:     From,
+			Until:    Until,
+			Endpoint: endpoint,
+		},
+	}
+
+	w := bufio.NewWriter(os.Stdout)
+	err = req.Do(w)
+	if err != nil {
+		log.Fatal(err)
+	}
+	w.Flush()
 }
