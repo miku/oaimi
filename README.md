@@ -1,10 +1,6 @@
 README
 ======
 
-Note: This is WIP. There is no release yet.
-
-----
-
 No frills OAI mirroring. It acts as cache and will take care of
 retrieving new records.
 
@@ -18,17 +14,12 @@ Usage
 
 Simplest version:
 
-    $ oaimi http://www.example.com/oai/provider > metadata.xml
+    $ oaimi http://www.example.com/oai > metadata.xml
 
 Apply OAI filters:
 
-    $ oaimi -set abc -from 2010-01-01 -until 2010-02-01 \
-        http://www.example.com/oai/provider > metadata.xml
-
-Query for the number of documents:
-
-    $ oaimi -size http://www.example.com/oai/provider
-    {"total": 29871, "cached": 27018}
+    $ oaimi -set abc -prefix marcxml -from 2010-01-01 -until 2010-02-01 \
+        http://www.example.com/oai > metadata.xml
 
 How it works
 ------------
