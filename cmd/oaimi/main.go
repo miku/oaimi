@@ -50,7 +50,7 @@ func main() {
 	}
 
 	if Until.Before(From) {
-		log.Fatal("invalid date range")
+		log.Fatal(oaimi.ErrInvalidDateRange)
 	}
 
 	endpoint := flag.Arg(0)
