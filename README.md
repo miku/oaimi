@@ -1,8 +1,10 @@
 README
 ======
 
-No frills OAI mirroring. It acts as cache and will take care of
-retrieving new records.
+> The Open Archives Initiative Protocol for Metadata Harvesting (OAI-PMH) is a low-barrier mechanism for repository interoperability.
+
+No frills OAI mirroring. It acts as cache and will take care of retrieving new
+records.
 
 Installation
 ------------
