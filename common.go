@@ -19,6 +19,8 @@ import (
 	"github.com/jinzhu/now"
 )
 
+const Version = "0.1.0"
+
 var ErrInvalidDateRange = errors.New("invalid date range")
 
 type OAIError struct {

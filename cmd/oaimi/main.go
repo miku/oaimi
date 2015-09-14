@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"os/user"
@@ -24,9 +25,15 @@ func main() {
 	prefix := flag.String("prefix", "oai_dc", "OAI metadataPrefix")
 	from := flag.String("from", "2000-01-01", "OAI from")
 	until := flag.String("until", time.Now().Format("2006-01-02"), "OAI until")
-	verbose := flag.Bool("verbose", false, "print request URLs")
+	verbose := flag.Bool("verbose", false, "more output")
+	showVersion := flag.Bool("v", false, "prints current program version")
 
 	flag.Parse()
+
+	if *showVersion {
+		fmt.Println(oaimi.Version)
+		os.Exit(0)
+	}
 
 	if flag.NArg() < 1 {
 		log.Fatal("URL to OAI endpoint required")
