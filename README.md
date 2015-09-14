@@ -6,6 +6,8 @@ README
 No frills OAI mirroring. It acts as cache and will take care of retrieving new
 records.
 
+![](https://github.com/miku/oaimi/blob/master/img/convergent_35855_sm.gif)
+
 Installation
 ------------
 
