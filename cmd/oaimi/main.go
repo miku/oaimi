@@ -25,6 +25,7 @@ func main() {
 	prefix := flag.String("prefix", "oai_dc", "OAI metadataPrefix")
 	from := flag.String("from", "2000-01-01", "OAI from")
 	until := flag.String("until", time.Now().Format("2006-01-02"), "OAI until")
+	retry := flag.Uint("retry", 16, "retry count for exponential backoff")
 	verbose := flag.Bool("verbose", false, "more output")
 	showVersion := flag.Bool("v", false, "prints current program version")
 
@@ -72,6 +73,7 @@ func main() {
 			From:     From,
 			Until:    Until,
 			Endpoint: endpoint,
+			MaxRetry: *retry,
 		},
 	}
 

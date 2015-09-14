@@ -21,7 +21,12 @@ import (
 
 const Version = "0.1.0"
 
-var ErrInvalidDateRange = errors.New("invalid date range")
+var (
+	ErrInvalidDateRange = errors.New("invalid date range")
+	ErrRetriesExceeded  = errors.New("retried and failed too many times")
+
+	backoff = 50
+)
 
 type OAIError struct {
 	Code    string
@@ -72,24 +77,8 @@ type Response struct {
 	} `xml:"error"`
 }
 
-// CachedRequest can serve content from HTTP or a local Cache.
-type CachedRequest struct {
-	Cache Cache
-	Request
-}
-
-// BatchedRequest will split up the request internally into monthly batches.
-// This provides the real caching value, since this makes continous harvesting
-// incremental. TODO: while this embed Request, it uses only a subset of the
-// fields, in reality, the batched request is more abstract, so change their
-// roles (let a real request embed the abstract request).
-type BatchedRequest struct {
-	Cache Cache
-	Request
-}
-
-// Request represents an OAI request, which might take multiple HTTP requests to fulfill.
-// It contains a reference to a Cache object, which can serve as an alternative data source.
+// Request represents an OAI request, which might take multiple HTTP requests
+// to fulfill.
 type Request struct {
 	Endpoint        string
 	Verb            string
@@ -99,9 +88,25 @@ type Request struct {
 	Prefix          string
 	ResumptionToken string
 	Verbose         bool
+	MaxRetry        uint
 }
 
-// URL returns the full URL for this request.
+// CachedRequest can serve content from HTTP or a local Cache.
+type CachedRequest struct {
+	Cache
+	Request
+}
+
+// BatchedRequest will split up the request internally into monthly batches.
+// This provides the real caching value, since this implements incremental
+// harvesting.
+type BatchedRequest struct {
+	Cache
+	Request
+}
+
+// URL returns the full URL for this request. A resumptionToken will suppress
+// some other parameters.
 func (r Request) URL() string {
 	vals := NewValues()
 	vals.AddIfExists("verb", r.Verb)
@@ -116,33 +121,45 @@ func (r Request) URL() string {
 	return fmt.Sprintf("%s?%s", r.Endpoint, vals.Encode())
 }
 
-// Do will execute one or more HTTP requests to fullfil one OAI request. The
-// record metadata is written verbatim to the given io.Writer.
+// Do will execute one or more HTTP requests to fullfil this one OAI request.
+// The record metadata is written verbatim to the given io.Writer.
 func (req Request) Do(w io.Writer) error {
 	for {
-		if req.Verbose {
-			log.Println(req.URL())
-		}
-		resp, err := http.Get(req.URL())
-		if err != nil {
-			return err
-		}
-		defer resp.Body.Close()
-
-		decoder := xml.NewDecoder(resp.Body)
+		var attempt uint
+		var decoder *xml.Decoder
 		var response Response
-		decoder.Decode(&response)
 
-		// TODO, retry on 4XX and 5XX with exponential backoff
-		if resp.StatusCode >= 400 {
-			return fmt.Errorf(http.StatusText(resp.StatusCode))
+		for {
+			if attempt > req.MaxRetry {
+				return ErrRetriesExceeded
+			}
+			if req.Verbose {
+				log.Printf("%d %s", attempt, req.URL())
+			}
+			resp, err := http.Get(req.URL())
+			if err != nil {
+				return err
+			}
+			defer resp.Body.Close()
+			decoder = xml.NewDecoder(resp.Body)
+			decoder.Decode(&response)
+
+			if resp.StatusCode < 400 {
+				break
+			}
+			if req.Verbose {
+				log.Println("got %s, retrying...", resp.Status)
+			}
+			attempt++
+			pause := time.Duration(2 << attempt * backoff)
+			time.Sleep(pause * time.Millisecond)
 		}
 
 		if response.Error.Code != "" {
 			return OAIError{Code: response.Error.Code, Message: response.Error.Message}
 		}
 
-		_, err = w.Write([]byte(response.ListRecords.Raw))
+		_, err := w.Write([]byte(response.ListRecords.Raw))
 		if err != nil {
 			return err
 		}
@@ -241,6 +258,7 @@ func (r BatchedRequest) Do(w io.Writer) error {
 				From:     interval.From,
 				Until:    interval.Until,
 				Endpoint: r.Endpoint,
+				MaxRetry: r.MaxRetry,
 			},
 		}
 		err := req.Do(w)
