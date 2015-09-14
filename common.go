@@ -2,7 +2,7 @@ package oaimi
 
 import (
 	"bufio"
-	"crypto/sha1"
+	"encoding/base64"
 	"encoding/xml"
 	"errors"
 	"fmt"
@@ -180,12 +180,20 @@ func (r CachedRequest) IsCached() bool {
 	return true
 }
 
+// Filename returns the filename for a request, which only carries date
+// information.
+func (r CachedRequest) Filename() string {
+	return fmt.Sprintf("%s-%s.xml", r.From.Format("2006-01-02"), r.Until.Format("2006-01-02"))
+}
+
 // Path returns the absolute path to the cache for an OAI request.
 func (r CachedRequest) Path() string {
-	h := sha1.New()
-	io.WriteString(h, fmt.Sprintf("%s:%s:%s", r.Endpoint, r.Set, r.Prefix))
-	fn := fmt.Sprintf("%s-%s.xml", r.From.Format("2006-01-02"), r.Until.Format("2006-01-02"))
-	return path.Join(r.Cache.Directory, fmt.Sprintf("%x", h.Sum(nil)), fn)
+	u, err := url.Parse(r.Endpoint)
+	if err != nil {
+		log.Fatal("endpoint is not an URL")
+	}
+	return path.Join(r.Cache.Directory, u.Host, r.Prefix,
+		base64.RawStdEncoding.EncodeToString([]byte(r.Set)), r.Filename())
 }
 
 // Do might abstract from the actual access (cache or HTTP).

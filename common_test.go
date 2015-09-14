@@ -33,7 +33,7 @@ func TestRequestPath(t *testing.T) {
 					Set:      "abc://1/@18",
 				},
 			},
-			Name: "/32720559340e1f1f71c9e2a49bdd2e8b955b410a/0001-01-01-0001-01-01.xml",
+			Name: "/abc.xyz/YWJjOi8vMS9AMTg/0001-01-01-0001-01-01.xml",
 		},
 		{
 			Request: CachedRequest{
@@ -46,7 +46,7 @@ func TestRequestPath(t *testing.T) {
 					Prefix:   "marc21",
 				},
 			},
-			Name: "/8ac9c8d017329b6edaf92bdf8187117e147eeb0e/0001-01-01-0001-01-01.xml",
+			Name: "/abc.xyz/marc21/YWJjOi8vMS9AMTg/0001-01-01-0001-01-01.xml",
 		},
 		{
 			Request: CachedRequest{
@@ -61,7 +61,7 @@ func TestRequestPath(t *testing.T) {
 					Until:    MustParseDefault("2015-01-01"),
 				},
 			},
-			Name: "/fe2187203a8160cf059ebef596f8d7dc3f26c16b/2010-01-01-2015-01-01.xml",
+			Name: "/abc.xyz/marc22/YWJjOi8vMS9AMTg/2010-01-01-2015-01-01.xml",
 		},
 	}
 

@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/user"
 	"path"
+	"path/filepath"
 	"time"
 
 	"github.com/miku/oaimi"
@@ -26,6 +27,7 @@ func main() {
 	from := flag.String("from", "2000-01-01", "OAI from")
 	until := flag.String("until", time.Now().Format("2006-01-02"), "OAI until")
 	retry := flag.Uint("retry", 16, "retry count for exponential backoff")
+	dirname := flag.Bool("dirname", false, "show shard directory for request")
 	verbose := flag.Bool("verbose", false, "more output")
 	showVersion := flag.Bool("v", false, "prints current program version")
 
@@ -75,6 +77,19 @@ func main() {
 			Endpoint: endpoint,
 			MaxRetry: *retry,
 		},
+	}
+
+	if *dirname {
+		req := oaimi.CachedRequest{
+			Cache: oaimi.Cache{Directory: *cacheDir},
+			Request: oaimi.Request{
+				Set:      *set,
+				Prefix:   *prefix,
+				Endpoint: endpoint,
+			},
+		}
+		fmt.Println(filepath.Dir(req.Path()))
+		os.Exit(0)
 	}
 
 	w := bufio.NewWriter(os.Stdout)
