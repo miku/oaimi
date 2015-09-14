@@ -180,6 +180,11 @@ func (r CachedRequest) IsCached() bool {
 	return true
 }
 
+// Fingerprint returns a encoded version of the full endpoint and the set.
+func (r CachedRequest) Fingerprint() string {
+	return base64.RawStdEncoding.EncodeToString([]byte(fmt.Sprintf("%s#%s", r.Endpoint, r.Set)))
+}
+
 // Filename returns the filename for a request, which only carries date
 // information.
 func (r CachedRequest) Filename() string {
@@ -192,8 +197,7 @@ func (r CachedRequest) Path() string {
 	if err != nil {
 		log.Fatal("endpoint is not an URL")
 	}
-	return path.Join(r.Cache.Directory, u.Host, r.Prefix,
-		base64.RawStdEncoding.EncodeToString([]byte(r.Set)), r.Filename())
+	return path.Join(r.Cache.Directory, u.Host, r.Prefix, r.Fingerprint(), r.Filename())
 }
 
 // Do might abstract from the actual access (cache or HTTP).
