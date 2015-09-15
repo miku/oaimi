@@ -1,3 +1,14 @@
+// Package oaimi implements a few helpers to mirror OAI repositories. The Open
+// Archives Initiative Protocol for Metadata Harvesting (OAI-PMH) is a low-
+// barrier mechanism for repository interoperability.
+//
+// This project aims to make it simple to create a local, single file view of the repository metadata.
+// It comes with a command line tool, called `oaimi`.
+//
+// Basic usage:
+//
+//     $ oaimi http://digitalcommons.unmc.edu/do/oai/ > metadata.xml
+//
 package oaimi
 
 import (
@@ -19,18 +30,21 @@ import (
 	"github.com/sethgrid/pester"
 )
 
+// Version
 const Version = "0.1.1"
 
 var (
+	// ErrInvalidDateRange, e.g. when until is before from
 	ErrInvalidDateRange = errors.New("invalid date range")
-	ErrRetriesExceeded  = errors.New("retried and failed too many times")
 )
 
+// OAIError wraps OAI error codes and messages.
 type OAIError struct {
 	Code    string
 	Message string
 }
 
+// Error to satisfy interface.
 func (e OAIError) Error() string {
 	return fmt.Sprintf("%s %s", e.Code, e.Message)
 }
@@ -53,12 +67,12 @@ func (v Values) AddIfExists(key, value string) {
 }
 
 // Cache is a simple cache configuration.
-// TODO: make cache more transparent.
 type Cache struct {
 	Directory string
 }
 
-// Response is a minimal response object, which knows only about ListRecords and errors.
+// Response is a minimal response object, which currently knows only about
+// ListRecords and errors.
 type Response struct {
 	Date        string `xml:"responseDate"`
 	ListRecords struct {
@@ -119,8 +133,8 @@ func (r Request) URL() string {
 	return fmt.Sprintf("%s?%s", r.Endpoint, vals.Encode())
 }
 
-// Do will execute one or more HTTP requests to fullfil this one OAI request.
-// The record metadata is written verbatim to the given io.Writer.
+// Do will execute one or more HTTP requests to fullfil this OAI request. The
+// record metadata XML is written verbatim to the given io.Writer.
 func (req Request) Do(w io.Writer) error {
 	for {
 		if req.Verbose {
@@ -168,19 +182,19 @@ func (r CachedRequest) Fingerprint() string {
 	return base64.RawStdEncoding.EncodeToString([]byte(fmt.Sprintf("%s#%s", r.Endpoint, r.Set)))
 }
 
-// Filename returns the filename for a request, which only carries date
+// Filename returns the filename for a request. It only carries date
 // information.
 func (r CachedRequest) Filename() string {
 	return fmt.Sprintf("%s-%s.xml", r.From.Format("2006-01-02"), r.Until.Format("2006-01-02"))
 }
 
-// Path returns the absolute path to the cache for an OAI request.
+// Path returns the absolute path to the cache file for a single OAI request.
 func (r CachedRequest) Path() string {
 	u, _ := url.Parse(r.Endpoint)
 	return path.Join(r.Cache.Directory, u.Host, r.Prefix, r.Fingerprint(), r.Filename())
 }
 
-// Do abstracts from the actual access (cache or HTTP). All OAI errors are
+// Do abstracts from the actual access, cache or HTTP. All OAI errors are
 // returned back, except noRecordsMatch, which is used to indicate a zero
 // result set.
 func (r CachedRequest) Do(w io.Writer) error {
@@ -223,7 +237,7 @@ func (r CachedRequest) Do(w io.Writer) error {
 	return nil
 }
 
-// Do runs a batched request over a range. All metadata gets written to the
+// Do runs batched requests over a range. All metadata gets written to the
 // given writer.
 func (r BatchedRequest) Do(w io.Writer) error {
 	intervals, err := MonthlyDateRange(r.From, r.Until)
@@ -235,7 +249,7 @@ func (r BatchedRequest) Do(w io.Writer) error {
 			Cache: Cache{Directory: r.Cache.Directory},
 			Request: Request{
 				Verbose:  r.Verbose,
-				Verb:     "ListRecords",
+				Verb:     r.Verb,
 				Set:      r.Set,
 				Prefix:   r.Prefix,
 				From:     interval.From,
@@ -251,7 +265,7 @@ func (r BatchedRequest) Do(w io.Writer) error {
 	return nil
 }
 
-// DateRange might be called TimeInterval as well.
+// DateRange represent a span of time.
 type DateRange struct {
 	From  time.Time
 	Until time.Time
