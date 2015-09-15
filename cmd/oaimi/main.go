@@ -33,7 +33,7 @@ func main() {
 	dirname := flag.Bool("dirname", false, "show shard directory for request")
 	verbose := flag.Bool("verbose", false, "more output")
 	root := flag.String("root", "", "name of artificial root element tag to use")
-	identify := flag.Bool("identify", false, "show repository information")
+	identify := flag.Bool("id", false, "show repository information")
 	showVersion := flag.Bool("v", false, "prints current program version")
 
 	flag.Parse()
