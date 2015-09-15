@@ -18,12 +18,13 @@ import (
 func main() {
 	var err error
 
+	var defaultDir string
 	usr, err := user.Current()
-	if err != nil {
-		log.Fatal(err)
+	if err == nil {
+		defaultDir = path.Join(usr.HomeDir, ".oaimi")
 	}
 
-	cacheDir := flag.String("cache", path.Join(usr.HomeDir, ".oaimi"), "oaimi cache dir")
+	cacheDir := flag.String("cache", defaultDir, "oaimi cache dir")
 	set := flag.String("set", "", "OAI set")
 	prefix := flag.String("prefix", "oai_dc", "OAI metadataPrefix")
 	from := flag.String("from", "2000-01-01", "OAI from")
@@ -49,6 +50,10 @@ func main() {
 
 	if _, err := url.Parse(endpoint); err != nil {
 		log.Fatal("endpoint is not an URL")
+	}
+
+	if *cacheDir == "" {
+		log.Fatal("cache directory not set")
 	}
 
 	if *dirname {
