@@ -13,6 +13,8 @@ Installation
 
     $ go get github.com/miku/oaimi/cmd/oaimi
 
+There are [deb and rpm packages](https://github.com/miku/oaimi/releases) as well.
+
 Usage
 -----
 
