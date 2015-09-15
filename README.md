@@ -25,12 +25,20 @@ Apply OAI filters:
     $ oaimi -set abc -prefix marcxml -from 2010-01-01 -until 2010-02-01 \
         http://www.example.com/oai > metadata.xml
 
+Example:
+
+    $ oaimi -verbose http://digital.ub.uni-duesseldorf.de/oai > metadata.xml
+
+To list the files, run:
+
+    $ ls $(oaimi -dirname http://digital.ub.uni-duesseldorf.de/oai)
+
 How it works
 ------------
 
-The harvesting is splitted up into monthly chunks. The raw data is downloaded
-and appended to a single file per source, set, prefix and month. Once a
-month has been harvested successfully, the file is moved below a cache dir.
+The harvesting is performed in monthly chunks. The raw data is downloaded and
+appended to a single file per source, set, prefix and month. Once a month has
+been harvested successfully, the file is moved below a cache dir.
 
 If you request the data for a given data source, `oaimi` will try to reuse the
 cache and only go out to the interwebs to harvest not yet harvested parts. The
