@@ -54,7 +54,7 @@ func main() {
 	}
 
 	if *identify {
-		req := oaimi.Request{Endpoint: endpoint, Verb: "Identify", Verbose: *verbose, MaxRetry: 10}
+		req := oaimi.Request{Endpoint: endpoint, Verb: "Identify", Verbose: *verbose, MaxRetry: *retry}
 		if err := req.Do(os.Stdout); err != nil {
 			log.Fatal(err)
 		}
