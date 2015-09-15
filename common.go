@@ -19,7 +19,7 @@ import (
 	"github.com/sethgrid/pester"
 )
 
-const Version = "0.1.0"
+const Version = "0.1.1"
 
 var (
 	ErrInvalidDateRange = errors.New("invalid date range")
