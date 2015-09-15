@@ -31,7 +31,7 @@ import (
 )
 
 // Version
-const Version = "0.1.1"
+const Version = "0.1.2"
 
 var (
 	// ErrInvalidDateRange, e.g. when until is before from
