@@ -14,7 +14,6 @@ package oaimi
 import (
 	"bufio"
 	"encoding/base64"
-	"encoding/json"
 	"encoding/xml"
 	"errors"
 	"fmt"
@@ -145,6 +144,33 @@ func (r Request) URL() string {
 	return fmt.Sprintf("%s?%s", r.Endpoint, vals.Encode())
 }
 
+// DoOne executes a single request only.
+func (req Request) DoOne() (Response, error) {
+	var response Response
+	if req.Verbose {
+		log.Println(req.URL())
+	}
+
+	client := pester.New()
+	client.MaxRetries = req.MaxRetry
+	client.Backoff = pester.ExponentialBackoff
+
+	resp, err := client.Get(req.URL())
+	if err != nil {
+		return response, err
+	}
+	defer resp.Body.Close()
+
+	decoder := xml.NewDecoder(resp.Body)
+	decoder.Decode(&response)
+
+	if response.Error.Code != "" {
+		return response, OAIError{Code: response.Error.Code, Message: response.Error.Message}
+	}
+
+	return response, nil
+}
+
 // Do will execute one or more HTTP requests to fullfil this OAI request. The
 // record metadata XML is written verbatim to the given io.Writer.
 func (req Request) Do(w io.Writer) error {
@@ -180,15 +206,6 @@ func (req Request) Do(w io.Writer) error {
 				break
 			}
 			req.ResumptionToken = response.ListRecords.Token.Value
-		case "Identify":
-			b, err := json.MarshalIndent(response.Identify, "", "    ")
-			if err != nil {
-				return err
-			}
-			if _, err = w.Write(b); err != nil {
-				return err
-			}
-			return nil
 		default:
 			return ErrVerbNotSupported
 		}

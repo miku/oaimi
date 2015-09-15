@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -34,6 +35,7 @@ func main() {
 	verbose := flag.Bool("verbose", false, "more output")
 	root := flag.String("root", "", "name of artificial root element tag to use")
 	identify := flag.Bool("id", false, "show repository information")
+	fromEarliest := flag.Bool("from-earliest", false, "harvest from earliest timestamp")
 	showVersion := flag.Bool("v", false, "prints current program version")
 
 	flag.Parse()
@@ -55,10 +57,15 @@ func main() {
 
 	if *identify {
 		req := oaimi.Request{Endpoint: endpoint, Verb: "Identify", Verbose: *verbose, MaxRetry: *retry}
-		if err := req.Do(os.Stdout); err != nil {
+		resp, err := req.DoOne()
+		if err != nil {
 			log.Fatal(err)
 		}
-		os.Stdout.WriteString("\n")
+		b, err := json.Marshal(resp.Identify)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(string(b))
 		os.Exit(0)
 	}
 
@@ -81,9 +88,24 @@ func main() {
 
 	var From, Until time.Time
 
-	if From, err = time.Parse("2006-01-02", *from); err != nil {
-		log.Fatal(err)
+	if *fromEarliest {
+		req := oaimi.Request{Endpoint: endpoint, Verb: "Identify", Verbose: *verbose, MaxRetry: *retry}
+		resp, err := req.DoOne()
+		if err != nil {
+			log.Fatal(err)
+		}
+		if len(resp.Identify.EarliestDatestamp) < 10 {
+			log.Fatalf("datestamp broken: %s", resp.Identify.EarliestDatestamp)
+		}
+		if From, err = time.Parse("2006-01-02", resp.Identify.EarliestDatestamp[:10]); err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		if From, err = time.Parse("2006-01-02", *from); err != nil {
+			log.Fatal(err)
+		}
 	}
+
 	if Until, err = time.Parse("2006-01-02", *until); err != nil {
 		log.Fatal(err)
 	}
