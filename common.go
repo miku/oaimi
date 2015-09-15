@@ -9,7 +9,6 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
-	"net/http"
 	"net/url"
 	"os"
 	"path"
@@ -17,6 +16,7 @@ import (
 	"time"
 
 	"github.com/jinzhu/now"
+	"github.com/sethgrid/pester"
 )
 
 const Version = "0.1.0"
@@ -125,45 +125,31 @@ func (r Request) URL() string {
 // The record metadata is written verbatim to the given io.Writer.
 func (req Request) Do(w io.Writer) error {
 	for {
-		var attempt uint
-		var decoder *xml.Decoder
-		var response Response
-
-		for {
-			if attempt > req.MaxRetry {
-				return ErrRetriesExceeded
-			}
-			if req.Verbose {
-				log.Printf("%d %s", attempt, req.URL())
-			}
-			resp, err := http.Get(req.URL())
-			if err != nil {
-				return err
-			}
-			defer resp.Body.Close()
-			decoder = xml.NewDecoder(resp.Body)
-			decoder.Decode(&response)
-
-			if resp.StatusCode < 400 {
-				break
-			}
-			if req.Verbose {
-				log.Println("got %s, retrying...", resp.Status)
-			}
-			attempt++
-			pause := time.Duration(2 << attempt * backoff)
-			time.Sleep(pause * time.Millisecond)
+		if req.Verbose {
+			log.Println(req.URL())
 		}
+
+		client := pester.New()
+		client.MaxRetries = 10
+		client.Backoff = pester.ExponentialBackoff
+
+		resp, err := client.Get(req.URL())
+		if err != nil {
+			return err
+		}
+		defer resp.Body.Close()
+
+		var response Response
+		decoder := xml.NewDecoder(resp.Body)
+		decoder.Decode(&response)
 
 		if response.Error.Code != "" {
 			return OAIError{Code: response.Error.Code, Message: response.Error.Message}
 		}
-
-		_, err := w.Write([]byte(response.ListRecords.Raw))
+		_, err = w.Write([]byte(response.ListRecords.Raw))
 		if err != nil {
 			return err
 		}
-
 		if response.ListRecords.Token.Value == "" {
 			break
 		}
