@@ -41,3 +41,9 @@ raw data for a specific source.
 
 For the moment, any further processing must happen in the client (like
 handling deletions).
+
+Similar projects
+----------------
+
+* [Catmandu::OAI](https://github.com/LibreCat/Catmandu-OAI)
+* [Sickle](https://pypi.python.org/pypi/Sickle)
