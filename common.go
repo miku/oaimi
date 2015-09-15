@@ -197,18 +197,13 @@ func (req Request) Do(w io.Writer) error {
 			return OAIError{Code: response.Error.Code, Message: response.Error.Message}
 		}
 
-		switch req.Verb {
-		case "ListRecords":
-			if _, err = w.Write([]byte(response.ListRecords.Raw)); err != nil {
-				return err
-			}
-			if response.ListRecords.Token.Value == "" {
-				break
-			}
-			req.ResumptionToken = response.ListRecords.Token.Value
-		default:
-			return ErrVerbNotSupported
+		if _, err = w.Write([]byte(response.ListRecords.Raw)); err != nil {
+			return err
 		}
+		if response.ListRecords.Token.Value == "" {
+			break
+		}
+		req.ResumptionToken = response.ListRecords.Token.Value
 	}
 	return nil
 }
