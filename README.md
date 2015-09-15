@@ -33,6 +33,30 @@ To list the files, run:
 
     $ ls $(oaimi -dirname http://digital.ub.uni-duesseldorf.de/oai)
 
+Options:
+
+    $ oaimi -h
+    Usage of oaimi:
+      -cache string
+            oaimi cache dir (default "/Users/tir/.oaimi")
+      -dirname
+            show shard directory for request
+      -from string
+            OAI from (default "2000-01-01")
+      -prefix string
+            OAI metadataPrefix (default "oai_dc")
+      -retry int
+            retry count for exponential backoff (default 10)
+      -root string
+            name of artificial root element tag to use
+      -set string
+            OAI set
+      -until string
+            OAI until (default "2015-09-15")
+      -v    prints current program version
+      -verbose
+            more output
+
 How it works
 ------------
 
