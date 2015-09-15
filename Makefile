@@ -44,3 +44,7 @@ rpm: $(TARGETS)
 
 cloc:
 	cloc --max-file-size 1 --exclude-dir assets --exclude-dir assetutil --exclude-dir tmp --exclude-dir fixtures .
+
+sites.tsv:
+	curl "http://www.openarchives.org/pmh/registry/ListFriends" | \
+		xmlstarlet sel -t -m "/BaseURLs/baseURL/text()" -c . -n - | grep -v '^$$' > sites.tsv
