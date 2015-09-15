@@ -29,6 +29,7 @@ func main() {
 	retry := flag.Int("retry", 10, "retry count for exponential backoff")
 	dirname := flag.Bool("dirname", false, "show shard directory for request")
 	verbose := flag.Bool("verbose", false, "more output")
+	root := flag.String("root", "", "name of artificial root element tag to use")
 	showVersion := flag.Bool("v", false, "prints current program version")
 
 	flag.Parse()
@@ -93,9 +94,15 @@ func main() {
 	}
 
 	w := bufio.NewWriter(os.Stdout)
+	if *root != "" {
+		w.WriteString(fmt.Sprintf("<%s>", *root))
+	}
 	err = req.Do(w)
 	if err != nil {
 		log.Fatal(err)
+	}
+	if *root != "" {
+		w.WriteString(fmt.Sprintf("</%s>", *root))
 	}
 	w.Flush()
 }
