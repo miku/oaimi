@@ -3,8 +3,8 @@ README
 
 > The Open Archives Initiative Protocol for Metadata Harvesting (OAI-PMH) is a low-barrier mechanism for repository interoperability.
 
-No frills OAI mirroring. It acts as cache and will take care of retrieving new
-records.
+No frills OAI harvesting and mirroring. It acts as cache and will take care of
+retrieving new records.
 
 ![](https://github.com/miku/oaimi/blob/master/img/convergent_35855_sm.gif)
 
