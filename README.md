@@ -33,6 +33,10 @@ To list the files, run:
 
     $ ls $(oaimi -dirname http://digital.ub.uni-duesseldorf.de/oai)
 
+To empty all cached files:
+
+    $ rm -rf $(oaimi -dirname http://digital.ub.uni-duesseldorf.de/oai)
+
 Options:
 
     $ oaimi -h
