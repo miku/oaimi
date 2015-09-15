@@ -74,6 +74,8 @@ raw data for a specific source.
 For the moment, any further processing must happen in the client (like
 handling deletions).
 
+More Docs: http://godoc.org/github.com/miku/oaimi
+
 Similar projects
 ----------------
 
