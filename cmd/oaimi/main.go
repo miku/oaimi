@@ -33,6 +33,7 @@ func main() {
 	dirname := flag.Bool("dirname", false, "show shard directory for request")
 	verbose := flag.Bool("verbose", false, "more output")
 	root := flag.String("root", "", "name of artificial root element tag to use")
+	identify := flag.Bool("identify", false, "show repository information")
 	showVersion := flag.Bool("v", false, "prints current program version")
 
 	flag.Parse()
@@ -50,6 +51,15 @@ func main() {
 
 	if _, err := url.Parse(endpoint); err != nil {
 		log.Fatal("endpoint is not an URL")
+	}
+
+	if *identify {
+		req := oaimi.Request{Endpoint: endpoint, Verb: "Identify", Verbose: *verbose, MaxRetry: 10}
+		if err := req.Do(os.Stdout); err != nil {
+			log.Fatal(err)
+		}
+		os.Stdout.WriteString("\n")
+		os.Exit(0)
 	}
 
 	if *cacheDir == "" {

@@ -14,6 +14,7 @@ package oaimi
 import (
 	"bufio"
 	"encoding/base64"
+	"encoding/json"
 	"encoding/xml"
 	"errors"
 	"fmt"
@@ -34,8 +35,8 @@ import (
 const Version = "0.1.2"
 
 var (
-	// ErrInvalidDateRange, e.g. when until is before from
 	ErrInvalidDateRange = errors.New("invalid date range")
+	ErrVerbNotSupported = errors.New("verb not supported by client")
 )
 
 // OAIError wraps OAI error codes and messages.
@@ -72,7 +73,7 @@ type Cache struct {
 }
 
 // Response is a minimal response object, which currently knows only about
-// ListRecords and errors.
+// ListRecords, Identify and errors.
 type Response struct {
 	Date        string `xml:"responseDate"`
 	ListRecords struct {
@@ -83,6 +84,15 @@ type Response struct {
 			Size   string `xml:"completeListSize,attr"`
 		} `xml:"resumptionToken"`
 	} `xml:"ListRecords"`
+	Identify struct {
+		Name              string `xml:"repositoryName" json:"name"`
+		URL               string `xml:"baseURL" json:"url"`
+		Version           string `xml:"protocolVersion" json:"version"`
+		AdminEmail        string `xml:"adminEmail" json:"email"`
+		EarliestDatestamp string `xml:"earliestDatestamp" json:"earliest"`
+		DeletePolicy      string `xml:"deletedRecord" json:"delete"`
+		Granularity       string `xml:"granularity" json:"granularity"`
+	} `xml:"Identify"`
 	Error struct {
 		Code    string `xml:"code,attr"`
 		Message string `xml:",chardata"`
@@ -123,10 +133,12 @@ func (r Request) URL() string {
 	vals := NewValues()
 	vals.AddIfExists("verb", r.Verb)
 	if r.ResumptionToken == "" {
-		vals.AddIfExists("from", r.From.Format("2006-01-02"))
-		vals.AddIfExists("until", r.Until.Format("2006-01-02"))
-		vals.AddIfExists("metadataPrefix", r.Prefix)
-		vals.AddIfExists("set", r.Set)
+		if r.Verb != "Identify" {
+			vals.AddIfExists("from", r.From.Format("2006-01-02"))
+			vals.AddIfExists("until", r.Until.Format("2006-01-02"))
+			vals.AddIfExists("metadataPrefix", r.Prefix)
+			vals.AddIfExists("set", r.Set)
+		}
 	} else {
 		vals.Add("resumptionToken", r.ResumptionToken)
 	}
@@ -158,13 +170,28 @@ func (req Request) Do(w io.Writer) error {
 		if response.Error.Code != "" {
 			return OAIError{Code: response.Error.Code, Message: response.Error.Message}
 		}
-		if _, err = w.Write([]byte(response.ListRecords.Raw)); err != nil {
-			return err
+
+		switch req.Verb {
+		case "ListRecords":
+			if _, err = w.Write([]byte(response.ListRecords.Raw)); err != nil {
+				return err
+			}
+			if response.ListRecords.Token.Value == "" {
+				break
+			}
+			req.ResumptionToken = response.ListRecords.Token.Value
+		case "Identify":
+			b, err := json.MarshalIndent(response.Identify, "", "    ")
+			if err != nil {
+				return err
+			}
+			if _, err = w.Write(b); err != nil {
+				return err
+			}
+			return nil
+		default:
+			return ErrVerbNotSupported
 		}
-		if response.ListRecords.Token.Value == "" {
-			break
-		}
-		req.ResumptionToken = response.ListRecords.Token.Value
 	}
 	return nil
 }
