@@ -88,7 +88,7 @@ type Request struct {
 	Prefix          string
 	ResumptionToken string
 	Verbose         bool
-	MaxRetry        uint
+	MaxRetry        int
 }
 
 // CachedRequest can serve content from HTTP or a local Cache.
@@ -130,7 +130,7 @@ func (req Request) Do(w io.Writer) error {
 		}
 
 		client := pester.New()
-		client.MaxRetries = 10
+		client.MaxRetries = req.MaxRetry
 		client.Backoff = pester.ExponentialBackoff
 
 		resp, err := client.Get(req.URL())
