@@ -24,8 +24,6 @@ const Version = "0.1.1"
 var (
 	ErrInvalidDateRange = errors.New("invalid date range")
 	ErrRetriesExceeded  = errors.New("retried and failed too many times")
-
-	backoff = 50
 )
 
 type OAIError struct {
@@ -146,8 +144,7 @@ func (req Request) Do(w io.Writer) error {
 		if response.Error.Code != "" {
 			return OAIError{Code: response.Error.Code, Message: response.Error.Message}
 		}
-		_, err = w.Write([]byte(response.ListRecords.Raw))
-		if err != nil {
+		if _, err = w.Write([]byte(response.ListRecords.Raw)); err != nil {
 			return err
 		}
 		if response.ListRecords.Token.Value == "" {
@@ -179,26 +176,21 @@ func (r CachedRequest) Filename() string {
 
 // Path returns the absolute path to the cache for an OAI request.
 func (r CachedRequest) Path() string {
-	u, err := url.Parse(r.Endpoint)
-	if err != nil {
-		log.Fatal("endpoint is not an URL")
-	}
+	u, _ := url.Parse(r.Endpoint)
 	return path.Join(r.Cache.Directory, u.Host, r.Prefix, r.Fingerprint(), r.Filename())
 }
 
-// Do might abstract from the actual access (cache or HTTP).
+// Do abstracts from the actual access (cache or HTTP). All OAI errors are
+// returned back, except noRecordsMatch, which is used to indicate a zero
+// result set.
 func (r CachedRequest) Do(w io.Writer) error {
 	if !r.IsCached() {
-		// store reply in temporary place for atomicity
 		file, err := ioutil.TempFile("", "oaimi-")
 		if err != nil {
 			return err
 		}
-
 		bw := bufio.NewWriter(file)
-
-		err = r.Request.Do(bw)
-		if err != nil {
+		if err := r.Request.Do(bw); err != nil {
 			switch t := err.(type) {
 			case OAIError:
 				if t.Code != "noRecordsMatch" {
@@ -208,33 +200,26 @@ func (r CachedRequest) Do(w io.Writer) error {
 				return err
 			}
 		}
-
 		bw.Flush()
 		file.Close()
-
-		dirname := filepath.Dir(r.Path())
-		if _, err := os.Stat(dirname); os.IsNotExist(err) {
-			err := os.MkdirAll(dirname, 0755)
-			if err != nil {
+		dir := filepath.Dir(r.Path())
+		if _, err := os.Stat(dir); os.IsNotExist(err) {
+			if err := os.MkdirAll(dir, 0755); err != nil {
 				return err
 			}
 		}
-
-		err = os.Rename(file.Name(), r.Path())
-		if err != nil {
+		if err := os.Rename(file.Name(), r.Path()); err != nil {
 			return err
 		}
 	}
+
 	file, err := os.Open(r.Path())
 	if err != nil {
 		return err
 	}
-
-	_, err = io.Copy(w, bufio.NewReader(file))
-	if err != nil {
+	if _, err := io.Copy(w, bufio.NewReader(file)); err != nil {
 		return err
 	}
-
 	return nil
 }
 
@@ -259,11 +244,9 @@ func (r BatchedRequest) Do(w io.Writer) error {
 				MaxRetry: r.MaxRetry,
 			},
 		}
-		err := req.Do(w)
-		if err != nil {
+		if err := req.Do(w); err != nil {
 			return err
 		}
-
 	}
 	return nil
 }

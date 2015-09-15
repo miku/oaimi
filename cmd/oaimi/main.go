@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net/url"
 	"os"
 	"os/user"
 	"path"
@@ -15,6 +16,7 @@ import (
 )
 
 func main() {
+	var err error
 
 	usr, err := user.Current()
 	if err != nil {
@@ -43,25 +45,39 @@ func main() {
 		log.Fatal("URL to OAI endpoint required")
 	}
 
-	From, err := time.Parse("2006-01-02", *from)
-	if err != nil {
-		log.Fatal(err)
+	endpoint := flag.Arg(0)
+
+	if _, err := url.Parse(endpoint); err != nil {
+		log.Fatal("endpoint is not an URL")
 	}
 
-	Until, err := time.Parse("2006-01-02", *until)
-	if err != nil {
-		log.Fatal(err)
+	if *dirname {
+		req := oaimi.CachedRequest{
+			Cache: oaimi.Cache{Directory: *cacheDir},
+			Request: oaimi.Request{
+				Set:      *set,
+				Prefix:   *prefix,
+				Endpoint: endpoint,
+			},
+		}
+		fmt.Println(filepath.Dir(req.Path()))
+		os.Exit(0)
 	}
 
+	var From, Until time.Time
+
+	if From, err = time.Parse("2006-01-02", *from); err != nil {
+		log.Fatal(err)
+	}
+	if Until, err = time.Parse("2006-01-02", *until); err != nil {
+		log.Fatal(err)
+	}
 	if Until.Before(From) {
 		log.Fatal(oaimi.ErrInvalidDateRange)
 	}
 
-	endpoint := flag.Arg(0)
-
 	if _, err := os.Stat(*cacheDir); os.IsNotExist(err) {
-		err := os.MkdirAll(*cacheDir, 0755)
-		if err != nil {
+		if err := os.MkdirAll(*cacheDir, 0755); err != nil {
 			log.Fatal(err)
 		}
 	}
@@ -80,29 +96,17 @@ func main() {
 		},
 	}
 
-	if *dirname {
-		req := oaimi.CachedRequest{
-			Cache: oaimi.Cache{Directory: *cacheDir},
-			Request: oaimi.Request{
-				Set:      *set,
-				Prefix:   *prefix,
-				Endpoint: endpoint,
-			},
-		}
-		fmt.Println(filepath.Dir(req.Path()))
-		os.Exit(0)
-	}
-
 	w := bufio.NewWriter(os.Stdout)
 	if *root != "" {
 		w.WriteString(fmt.Sprintf("<%s>", *root))
 	}
-	err = req.Do(w)
-	if err != nil {
+	if err = req.Do(w); err != nil {
 		log.Fatal(err)
 	}
 	if *root != "" {
 		w.WriteString(fmt.Sprintf("</%s>", *root))
 	}
-	w.Flush()
+	if err = w.Flush(); err != nil {
+		log.Fatal(err)
+	}
 }
