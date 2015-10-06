@@ -87,3 +87,8 @@ Similar projects
 
 * [Catmandu::OAI](https://github.com/LibreCat/Catmandu-OAI)
 * [Sickle](https://pypi.python.org/pypi/Sickle)
+
+TODO
+----
+
+* use some kind of decorator pattern: `Batch{Cached{Request}}`
