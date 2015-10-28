@@ -28,7 +28,7 @@ func main() {
 	cacheDir := flag.String("cache", defaultDir, "oaimi cache dir")
 	set := flag.String("set", "", "OAI set")
 	prefix := flag.String("prefix", "oai_dc", "OAI metadataPrefix")
-	from := flag.String("from", "2000-01-01", "OAI from")
+	from := flag.String("from", "", "OAI from")
 	until := flag.String("until", time.Now().Format("2006-01-02"), "OAI until")
 	retry := flag.Int("retry", 10, "retry count for exponential backoff")
 	dirname := flag.Bool("dirname", false, "show shard directory for request")
@@ -88,7 +88,7 @@ func main() {
 
 	var From, Until time.Time
 
-	if *fromEarliest {
+	if *from == "" || *fromEarliest {
 		req := oaimi.Request{Endpoint: endpoint, Verb: "Identify", Verbose: *verbose, MaxRetry: *retry}
 		resp, err := req.DoOne()
 		if err != nil {
