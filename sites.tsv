@@ -1,3 +1,17 @@
+http://biblioteca.utec.edu.sv:8080/oai/request
+http://openarchive.tk.mta.hu/cgi/oai2
+http://eprints.exchange.isb.edu/cgi/oai2
+http://openaccess.dogus.edu.tr:8080/oai/request
+http://www.aml-cfwb.be/catalogues/oai
+http://www.worldsciencepublisher.org/journals/index.php/ACMA/oai
+http://www.worldsciencepublisher.org/journals/index.php/AEES/oai
+http://engagedscholarship.csuohio.edu/cgi/oai2.cgi
+http://repozytorium.amu.edu.pl:8080/oai/request
+http://clok.uclan.ac.uk/cgi/oai2
+http://edtb.euskomedia.org/cgi/oai2
+http://eprint.iitd.ac.in/dspace-oai/request
+http://dl.comp.nus.edu.sg/dspace-oai/request
+http://sammelpunkt.philo.at:8080/perl/oai2
 http://periodicos.claec.org/index.php/cc/oai
 http://digitalscholarship.tsu.edu/do/oai/
 http://bioinformatica.in/index.php/bioinformatica/oai
@@ -16,6 +30,7 @@ http://borjournals.com/a/index.php/index/oai
 http://dlws.library.ucla.edu/oai/provider
 http://hup.sub.uni-hamburg.de/giga/journal-family/index/oai
 http://ir.lib.oita-u.ac.jp/dspace-oai/request
+http://www.vegetables.su/index.php/jour/oai
 http://sujo.usindh.edu.pk/index.php/index/oai
 http://sujo.usindh.edu.pk/index.php/Keenjhar/oai
 http://scholarship.law.umn.edu/do/oai/
@@ -24,6 +39,7 @@ http://riberdis.cedd.net/oai/request
 http://symposia.colby.edu/iii/oairep/OAIRepository
 http://www2.pucpr.br/reol/index.php/RCPO/oai/
 http://etext.library.adelaide.edu.au/cgi-bin/OAI-lite.pl
+http://aprendeenlinea.udea.edu.co/revistas/index.php/psicologia/oai
 http://www.remexesto.com/index.php/remexesto/oai
 http://digitalcommons.ursinus.edu/do/oai/
 http://digitalcommons.unmc.edu/do/oai/
@@ -185,6 +201,7 @@ http://museum.ied.edu.hk/paprod/aspx/repository.aspx
 http://stud.epsilon.slu.se/cgi/oai2
 http://ir.kochi-u.ac.jp/dspace-oai/request
 http://www.openarchives.es/singlemadrid/oai.asp
+http://www.aestheticinvestigations.eu/index.php/journal/oai
 http://scholarsrepository.llu.edu/do/oai/
 http://i2.ua.es/architecture/oai
 http://hipatiapress.com/hpjournals/index.php/hse/oai
@@ -265,6 +282,7 @@ http://digitalcommons.law.scu.edu/do/oai/
 http://ndltd.ncl.edu.tw/cgi-bin/gs32/ncloai.cgi
 http://fish.library.usyd.edu.au/oai
 http://edoc.bibliothek.uni-halle.de/servlets/MCROAIDataProvider
+http://revzoilomarinello.sld.cu/index.php/zmv/oai
 http://www.rpmj.ru/index.php/jour/oai
 http://jamal.ub.ac.id/index.php/index/oai
 http://www.jcomorbidity.com/index.php/index/oai
@@ -333,6 +351,8 @@ http://digitalcommons.rwu.edu/cgi/oai2.cgi
 http://earth.cs.utk.edu/OAI/test/oai.pl
 http://www.bioone.org/action/oai
 http://www.correspondances.cnrs.fr/oai/oai2.php
+http://ejournal.kopertais4.or.id/index.php/religi/oai
+http://teosofi.uinsby.ac.id/index.php/index/oai
 http://journals.wolfcorner.org/index.php/raj/oai
 http://archive-ouverte.unige.ch/oaiprovider/
 http://iptek.its.ac.id/index.php/index/oai
@@ -348,6 +368,7 @@ http://opus.ub.uni-bayreuth.de/oai/oai2.php
 http://oai.persee.fr/oai.do
 http://etheses.nottingham.ac.uk/perl/oai2
 http://alcme.oclc.org/xtcat/servlet/OAIHandler
+http://www.uiskbh.ba/ojs/index.php/journal-tec/oai
 http://www.revistasjdc.com/main/index.php/rciyt/oai
 http://firescholars.seu.edu/do/oai/
 http://journal.uinjkt.ac.id/index.php/tarbiya/oai
@@ -526,6 +547,7 @@ http://geolib.geo.auth.gr/digeo/index.php/index/oai
 http://sucra.saitama-u.ac.jp/modules/xoonips/oai.php
 http://84.79.19.79:8080/dspace-oai/request
 http://caltechcdstr.library.caltech.edu/perl/oai2
+http://aprendeenlinea.udea.edu.co/revistas/index.php/trashumante/oai
 http://ojs.univ-annaba.dz/index.php/FACMED/oai
 http://www.bjbms.org/ojs/index.php/bjbms/oai
 http://scholarsarchive.library.albany.edu/do/oai/
@@ -577,8 +599,8 @@ http://dspace.dsto.defence.gov.au/dspace-oai/request
 http://jsnc.library.caltech.edu/perl/oai2
 http://eprints.ucl.ac.uk/perl/oai2
 http://www.infomotions.com/musings/oai/index.pl
-http://epublications.unilim.fr/revues/as/oai.php
 http://digitalcommons.winthrop.edu/do/oai/
+http://epublications.unilim.fr/revues/as/oai.php
 http://www.sciencepubco.com/index.php/IJASP/oai
 http://czasopisma.upjp2.edu.pl/annalescanonici/oai
 http://academy-journals.in.ua/index.php/herald/oai.
@@ -658,6 +680,8 @@ http://escholar.humboldt.edu:8080/dspace-oai/request
 http://digitalcommons.carleton.edu/cgi/oai2.cgi
 http://www.ibiblio.org/collection/oai/
 http://eprints.ecs.soton.ac.uk/perl/oai2
+http://journal.uia.no/index.php/JCSW/oai
+http://digitalcommons.du.edu/do/oai/
 http://sujo.usindh.edu.pk/index.php/THE-GOVERNMENT/oai
 http://revistas.ustabuca.edu.co/index.php/ITECKNE/oai
 http://www.sciencepubco.com/index.php/IJBR/oai
@@ -705,6 +729,8 @@ http://repositories.lib.utexas.edu/oai/request
 http://cab.unime.it/mus/perl/oai2
 http://www.gsi.de/home/harvest/oai2.php
 http://www.opus-bayern.de/fh-regensburg/oai/oai2.php
+http://ejournals.swu.ac.th/index.php/index/oai
+http://www.thejsms.org/index.php/TSMRI/oai
 http://ojs.di-verlag.de/index.php/atp_edition/oai
 http://www.icesi.edu.co/revistas/index.php/trans-pasando_fronteras/oai
 http://actualproblems.dp.ua/index.php/index/oai
@@ -753,6 +779,7 @@ http://teapot.lib.ocha.ac.jp/ocha-oai/request
 http://hipatia.uc3m.es:8080/dspace-oai/request
 http://geogreif.uni-greifswald.de/geogreif/oai/oai.php
 http://dlib.bg.pwr.wroc.pl/dlibra/oai-pmh-repository.xml
+http://aldizkaria.ankulegi.org/index.php/index/oai
 http://books.bk.tudelft.nl/index.php/press/oai
 http://peer.asee.org/oai
 http://revistas.ustatunja.edu.co/index.php/tarquitectura/oai
@@ -775,6 +802,7 @@ http://bibdigital.sid.inpe.br/col/iconet.com.br/banon/2003/11.21.21.08/doc/oai.c
 http://mbc.malopolska.pl/dlibra/oai-pmh-repository.xml
 http://www.ir.dcu.ie/perl/oai2
 http://mue.repo.nii.ac.jp/oai
+http://www.clarin.si/repository/oai/request
 http://www.lastorresdelucca.org/index.php/ojs/oai
 http://www.raddo-ethnodoc.com/OAI/oai2.php
 http://elibrary.kmpu.edu.ua/cgi/oai2
@@ -789,6 +817,8 @@ http://OAIscotland.cdlr.strath.ac.uk/services/gateway/hairst.cdlr.strath.ac.uk/r
 http://www.nla.gov.au/apps/oaicat/servlet/OAIHandler
 http://catedra.ruv.itesm.mx/oai/request
 http://bfcjeducv.oai.alejandria.biz/cgi-win/be_oai.exe
+http://commons.law.famu.edu/do/oai/
+http://revistas.ucm.es/index.php/oai/oai/
 http://www.gjess.co.in/index.php/gjess/oai
 http://collections.library.utoronto.ca/oai2
 http://bioquimica.org.br/revista/ojs/index.php/REB/oai
@@ -812,6 +842,8 @@ http://ir.kagoshima-u.ac.jp/dspace-oai/request
 http://oai.remuna.org/oai/archiviteatro.py
 http://digitalcommons.providence.edu/cgi/oai2.cgi
 http://rogue.ncl.ac.uk/xml/index.php
+http://www.adi-madi.ru/index.php/madi/oai
+http://aprendeenlinea.udea.edu.co/revistas/index.php/pensarh/oai
 http://journals.umcs.pl/index/oai
 http://www.pediatricneurologybriefs.com/index.php/up/oai
 http://journals.abc.us.org/index.php/abcjar/oai
@@ -835,6 +867,7 @@ http://revcom2.portcom.intercom.org.br/index.php/mediajornalismo/oai
 http://science-attic.org/dp/oai2.php
 http://bcpw.bg.pw.edu.pl/dlibra/oai-pmh-repository.xml
 http://broker10.fcla.edu/cgi/b/broker20/broker20
+http://journal.iain-samarinda.ac.id/index.php/index/oai
 http://revistas.unla.edu.ar/saludcolectiva/oai
 http://dspace.vsb.cz/oai/request
 http://www.sciencepubco.com/index.php/IJPT/oai
@@ -1082,6 +1115,7 @@ http://nsdl.sdsc.edu/oai-server/oai.cgi
 http://repo.lib.tut.ac.jp/oai
 http://digital.slub-dresden.de/oai/
 http://www.mdpi.com:8080/oai/oai2.php
+http://asp01.ex-lh.hu/OAI-PUB
 http://revistas.udes.edu.co/site/index.php/facultad-ciencias-salud/oai
 http://www.sciencepubco.com/index.php/IJH/oai
 http://journalarraniry.com/ojs/index.php/jar/oai
@@ -1103,6 +1137,7 @@ http://eprints.brighton.ac.uk/perl/oai2
 http://geoleoedocs.sub.uni-goettingen.de:8080/dspace-oai/request
 http://content.lib.utah.edu/cgi-bin/oai.exe
 http://rib.cs.utk.edu/OAI/test/oai.pl
+http://csuepress.columbusstate.edu/do/oai/
 http://scholarworks.law.ubalt.edu/do/oai/
 http://pjhrd.upm.edu.ph/index.php/main/oai
 http://guayanavirtual.web.ve/novo-tekhne/index.php/NT/oai
@@ -1129,6 +1164,7 @@ http://eureka.lib.teithe.gr:8080/dspace-oai/request
 http://dspace.c3sl.ufpr.br/dspace-oai/request
 http://eiop.or.at/cgi-bin/oaiserv.pl
 http://eprints.dcu.ie/perl/oai2
+http://red.mnstate.edu/do/oai/
 http://rjs.ruh.ac.lk/index.php/rjs/oai
 http://digitalrepository.smu.edu/do/oai/
 http://www.jcircadianrhythms.com/index.php/up/oai
@@ -1165,6 +1201,8 @@ http://repository.lib.gifu-u.ac.jp/dspace-oai/request
 http://dl.acs.org.au/index.php/index/oai
 http://w3.avignon.inra.fr/dspace-oai/request
 http://cogprints.ecs.soton.ac.uk/perl/oai2
+http://runachayecuador.com/refcale/index.php/index/oai
+http://giapjournals.com/index.php/hssr/oai
 http://ejournal.stkip-pgri-sumbar.ac.id/index.php/index/oai
 http://corpora.uni-hamburg.de:8080/oai/provider
 http://www.sciencepubco.com/index.php/IJAG/oai
@@ -1198,6 +1236,8 @@ http://ir.nul.nagoya-u.ac.jp/dspace-oai/request
 http://web2.bium.univ-paris5.fr/oai/oai2.php
 http://mpra.ub.uni-muenchen.de/perl/oai2
 http://www.intute.ac.uk/oai/oai2.php
+http://openprairie.sdstate.edu/do/oai/
+http://icfjournal.org/index.php/icfj/oai
 http://quest.library.illinois.edu/gateway.net/oai.aspx/iwmi.catalog.cgiar.org/oaisteriwmipubs.xml
 http://journal.kglobal.org/index.php/index/oai
 http://digitalcommons.newhaven.edu/do/oai/
@@ -1224,6 +1264,7 @@ http://gdea.informatik.uni-koeln.de/perl/oai2
 http://solarphysics.livingreviews.org/register/oai
 http://cnum.cnam.fr/oai/oai2.php
 http://drum.umd.edu/oai
+http://stars.library.ucf.edu/do/oai/
 http://21bs.ru/index.php/index/oai
 http://www.ijicta.org/index.php/ijicta/oai
 http://www.eds.yildiz.edu.tr/journal-of-thermal-engineering/ajaxtool/oai
@@ -1317,6 +1358,7 @@ http://etd.ncsi.iisc.ernet.in/dspace-oai/request
 http://biblio-eprints.bo.cnr.it/perl/oai2
 http://pt.cision.com/edpoai/oai2.aspx
 http://repo.nara-u.ac.jp/modules/xoonips/oai.php
+http://secyt.unpa.edu.ar/journal/index.php/index/oai
 http://phytomedicine.ejournals.ca/index.php/phytomedicine/oai
 http://www.archaeologybulletin.org/index.php/up/oai
 http://digitalcommons.colum.edu/do/oai/
@@ -1425,6 +1467,7 @@ http://hal.in2p3.fr/oai/oai.php
 http://ideals.uiuc.edu/dspace-oai/request
 http://kramerius.nkp.cz/kramerius/oai
 http://acikerisim.lib.comu.edu.tr:8080/oai/request
+http://repository.uksw.edu/oai/request
 http://www.rhythmos.gr/index.php/Rhythmos/oai
 http://journal.newcenturyscience.com/index.php/index/oai
 http://ir.polytechnic.edu.na/oai/request
@@ -1630,6 +1673,8 @@ http://www2.pucpr.br/reol/index.php/RFM/oai/
 http://eprints.cf.ac.uk/perl/oai2
 http://digitalcommons.trinity.edu/cgi/oai2.cgi
 http://repositori.udl.cat/oai/request
+http://www.hypnos.org.br/revista/index.php/index/oai
+http://journal.sadra.ac.id/index.php/kanzphilosophia/oai
 http://www.eds.yildiz.edu.tr/jacodesmath/ajaxtool/oai
 http://journal.uinsgd.ac.id/index.php/isin/oai
 http://cjsdw.com/index.php/cjsdw/oai
@@ -1672,7 +1717,6 @@ http://journal.opted.org/index.php/index/oai
 http://pure.qub.ac.uk/ws/oai
 http://shoin.repo.nii.ac.jp/oai
 http://bibqyp.ing.ucv.ve/cgi-win/be_oai.exe
-http://collections.carli.illinois.edu/cgi-bin/oai.exe
 http://redifis.epn.edu.ec/index.php/ReDiFIS/oai
 http://radap.kpi.ua/index.php/radiotechnique/oai
 http://repositorio.ispgaya.pt/oai/request
@@ -1715,6 +1759,7 @@ http://gtcni.openrepository.com/gtcni-oai/request
 http://www.dba.it/sbagnet/OAIHandler
 http://kpbc.umk.pl/dlibra/oai-pmh-repository.xml
 http://elib.suub.uni-bremen.de/cgi-bin/oai2
+http://aprendeenlinea.udea.edu.co/revistas/index.php/affectiosocietatis/oai
 http://journals.abc.us.org/index.php/abr/oai
 http://revistas.usc.edu.co/index.php/Contextos/oai
 http://libucd.ucd.ie/oaiprovider/
@@ -2137,6 +2182,7 @@ http://ir.library.oregonstate.edu/dspace-oai/request
 http://eot2003.ncsa.uiuc.edu/oai2.php
 http://cgi.vtt.fi/progs/inf/OAI
 http://infsearch.cs.cmu.edu/cgi-bin/oai.pl
+http://pakpub.com/index.php/JIRMS/oai
 http://rhythmos.info.tm/index.php/Rhythmos/oai
 http://bfaizaucv.oai.alejandria.biz/cgi-win/be_oai.exe
 http://www.revistasnicaragua.net.ni/index.php/index/oai
@@ -2216,6 +2262,7 @@ http://bibliotecavirtual.larioja.org/i18n/oai/oai.cmd
 http://dspace.lib.kanazawa-u.ac.jp:8080/dspace-oai/request
 http://bibcyt.ucla.edu.ve/cgi-win/be_oai.exe
 http://padis.uniroma1.it/oai2d.py/
+http://repository.edm-forum.org/do/oai/
 http://www.jbmethods.org/jbm/oai
 http://borjournals.com/ojs/index.php/index/oai
 http://worldsciencepublisher.org/journals/index.php/JOE/oai
@@ -2334,6 +2381,8 @@ http://repository.libis.kuleuven.be/dspace-oai/request
 http://smartech.gatech.edu:8282/dspace-oai/request
 http://libserv12.Princeton.EDU/oai/oai.pl
 http://www.pubmedcentral.gov/oai/oai.cgi
+http://upcommons.upc.edu/oai/request
+http://repository.mua.ac.ke/cgi/oai2
 http://www.thescholedge.org/index.php/sijbpg/oai
 http://revistas.usbbog.edu.co/index.php/ingenium/oai
 http://puente.upbbga.edu.co/index.php/sistemas_telematica/oai
@@ -2376,6 +2425,7 @@ http://revcom2.portcom.intercom.org.br/index.php/inovcom/oai
 http://oai.ibict.br/oai/mypoai/oai2.php
 http://bolder.grainger.uiuc.edu/uiLibOAIProvider/2.0/oai.asp
 http://bibvirtual.ucla.edu.ve/cgi-win/be_oai.exe
+http://sciencebiology.org/index.php/BIOMEDICH/oai
 http://calhoun.nps.edu/oai/request
 http://journalusco.edu.co/index.php/Pielagus/oai
 http://www.ogigia.es/index.php/ogigia/oai
@@ -2414,6 +2464,7 @@ http://helvia.uco.es/oai/request
 http://www.6journal.org/perl/oai2
 http://srb2.bib.iteso.mx/coneicc/oai.aspx
 http://www.bsz-bw.de/cgi-bin/oai20_send.pl
+http://detinf.elpub.ru/index.php/jour/oai
 http://journal.trunojoyo.ac.id/agriekonomika/oai
 http://opus.govst.edu/do/oai/
 http://www.cogitatiopress.com/ojs/index.php/politicsandgovernance/oai
@@ -2479,31 +2530,17 @@ http://www.entomotropica.org/ojs/oai/
 http://uther.dlib.vt.edu:8080/oaicat/servlet/OAIHandler
 http://bsbdok.digitale-sammlungen.de/oai/ostdok
 http://www.pilonidal.com.au/ojs/index.php/PSJ/oai
-http://biblioteca.utec.edu.sv:8080/oai/request
-http://openarchive.tk.mta.hu/cgi/oai2
-http://eprints.exchange.isb.edu/cgi/oai2
 http://revistas.uptc.edu.co/revistas/index.php/ingenieria/oai
 http://eccyb.org/index.php/index/oai
-http://openaccess.dogus.edu.tr:8080/oai/request
-http://www.aml-cfwb.be/catalogues/oai
 http://manglar.uninorte.edu.co/oai/request
 http://pirhua.udep.edu.pe/oai/request
 http://artnodes.uoc.edu/ojs/index.php/index/oai
-http://www.worldsciencepublisher.org/journals/index.php/ACMA/oai
-http://www.worldsciencepublisher.org/journals/index.php/AEES/oai
-http://engagedscholarship.csuohio.edu/cgi/oai2.cgi
-http://repozytorium.amu.edu.pl:8080/oai/request
 http://bfcesspucv.oai.alejandria.biz/cgi-win/be_oai.exe
-http://clok.uclan.ac.uk/cgi/oai2
-http://edtb.euskomedia.org/cgi/oai2
 http://mdrf-eprints.in/cgi/oai2
 http://sylvester.JTSA.EDU:8881/OAI-PUB
 http://www.archive.org/services/oai2.php
-http://eprint.iitd.ac.in/dspace-oai/request
 http://vle.bromley.ac.uk/dspace-oai/request
-http://dl.comp.nus.edu.sg/dspace-oai/request
 http://espace.lis.curtin.edu.au/perl/oai2
-http://sammelpunkt.philo.at:8080/perl/oai2
 http://periodicos.ifpb.edu.br/index.php/principia/oai
 http://dgsa.uaeh.edu.mx:8080/oai/request
 http://www.arjournals.org/index.php/ijdd/oai
@@ -2519,6 +2556,7 @@ http://u2.gmu.edu:8080/dspace-oai/request
 http://eprints.stoa.it/perl/oai2
 http://memsic.ccsd.cnrs.fr/perl/oai2
 http://eprints.anu.edu.au/perl/oai2
+http://aprendeenlinea.udea.edu.co/revistas/index.php/revistraso/oai
 http://phasis.tsu.ge/index.php/phasis/oai
 http://worldsciencepublisher.org/journals/index.php/ALSA/oai
 http://www.entrepalavras.ufc.br/revista/index.php/Revista/oai
@@ -2529,6 +2567,7 @@ http://rivm.openrepository.com/rivm-oai/request
 http://chesterrep.openrepository.com/cdr-oai/request
 http://eprints.rhul.ac.uk/perl/oai2
 http://miami.uni-muenster.de/servlets/OAIDataProvider
+http://aprendeenlinea.udea.edu.co/revistas/index.php/Psyconex/oai
 http://masters.kubg.edu.ua/index.php/pi/oai
 http://digitalcommons.fvsu.edu/do/oai/
 http://sht.ut.ee/index.php/sht/oai
@@ -2553,6 +2592,7 @@ http://vvoai.lib.utk.edu/cgi-bin/XMLFile/vvoai/oai.pl
 http://kutarr.lib.kochi-tech.ac.jp/dspace-oai/request
 http://replica.palni.edu/cgi-bin/oai.exe
 http://www.lis.upatras.gr/ebge/oai2/oai2.php
+http://repositorioseea.es/oai/request
 http://www.revistasjdc.com/main/index.php/reyte/oai
 http://real-j.mtak.hu/cgi/oai2
 http://www.psychologicabelgica.com/index.php/up/oai
@@ -2561,7 +2601,6 @@ http://journals.ateneo.edu/ojs/index.php/budhi/oai
 http://fc1.to.cnr.it/oaiprovider/
 http://www.iaesjournal.com/online/index.php/index/oai
 http://acikarsiv.atauni.edu.tr/services_oai2/
-http://eresearch.ozyegin.edu.tr/oai/request
 http://pbc.gda.pl/oai-pmh-repository.xml
 http://www.ethicslibrary.org/cgi/oai2.cgi
 http://puslit2.petra.ac.id/ejournal/index.php/elk/oai
@@ -2618,6 +2657,8 @@ http://scholars.wlu.ca/cgi/oai2.cgi
 http://oai.saber.ula.ve/cgi-win/be_oai.exe
 http://dspace.cityu.edu.hk/dspace-oai/request
 http://etd-submit.etsu.edu/ETD-db/OAI/oai.pl
+http://ijseries.com/index.php/index/oai
+http://hss-opus.ub.ruhr-uni-bochum.de/opus4/oai
 http://oai.libguides.com/4igj44za.oai
 http://openbooks.ifmo.ru/oai/
 http://nujet.org.in/index.php/nujet/oai
@@ -2642,6 +2683,7 @@ http://mehdijournal.com/index.php/mehdi/oai
 http://content.ohsu.edu/cgi-bin/oai.exe
 http://www.liber.ufpe.br/clioi/modules/pd/
 http://digitalcommons.pace.edu/cgi/oai2.cgi
+http://digitalcommons.gardner-webb.edu/do/oai/
 http://ojs2.utp.edu.co/index.php/cosmos/oai
 http://dspace.univ-biskra.dz:8080/oai/request
 http://boris.unibe.ch/cgi/oai2
@@ -2700,6 +2742,7 @@ http://www.bolognaprocess.info/cgi/oai2
 http://dspace.nara-edu.ac.jp:8080/dspace-oai/request
 http://archives.univ-lyon2.fr/perl/oai2
 http://eprints.bbk.ac.uk/perl/oai2
+http://cedar.wwu.edu/do/oai/
 http://philosophy.tsu.ge/index.php/index/oai
 http://ibersid.eu/ojs/index.php/scire/oai
 http://ojs.philosophy.spbu.ru/index.php/index/oai/
@@ -2711,6 +2754,7 @@ http://dyuthi.cusat.ac.in/dspace-oai/request
 http://bura.brunel.ac.uk/dspace-oai/request
 http://www.cybertesis.edu.pe:80/sdx/sdx/oai/sisbib/documents
 http://oai-dienst.uni-oldenburg.de/oai2/oai2.php
+http://research.moodle.net/cgi/oai2
 http://eruifd.erciyes.edu.tr/oai-pmh-repository/request
 http://absronline.org/journals/index.php/index/oai
 http://journal.ui.ac.id/index.php/tseajm/oai
@@ -2723,6 +2767,7 @@ http://krex.k-state.edu/dspace-oai/request
 http://bibagr.ucla.edu.ve/cgi-win/be_oai.exe
 http://ir.ide.go.jp/dspace-oai/request
 http://www.numismatics.org/oai/oai.pl
+http://aprendeenlinea.udea.edu.co/revistas/index.php/boletin/oai
 http://scholarship.law.nd.edu/do/oai/
 http://revistas.luz.edu.ve/index.php/index/oai
 http://fulir.irb.hr/cgi/oai2
