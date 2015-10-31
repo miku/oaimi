@@ -21,6 +21,7 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"net/url"
 	"os"
 	"path"
@@ -37,6 +38,8 @@ const Version = "0.1.6"
 var (
 	ErrInvalidDateRange = errors.New("invalid date range")
 	ErrVerbNotSupported = errors.New("verb not supported by client")
+
+	UserAgent = fmt.Sprintf("oaimi/%s (https://github.com/miku/oaimi)", Version)
 )
 
 // OAIError wraps OAI error codes and messages.
@@ -169,7 +172,12 @@ func (req Request) DoOne() (Response, error) {
 	client.MaxRetries = req.MaxRetry
 	client.Backoff = pester.ExponentialBackoff
 
-	resp, err := client.Get(req.URL())
+	httpreq, err := http.NewRequest("GET", req.URL(), nil)
+	if err != nil {
+		return response, err
+	}
+	httpreq.Header.Set("User-Agent", UserAgent)
+	resp, err := client.Do(httpreq)
 	if err != nil {
 		return response, err
 	}
@@ -197,7 +205,12 @@ func (req Request) Do(w io.Writer) error {
 		client.MaxRetries = req.MaxRetry
 		client.Backoff = pester.ExponentialBackoff
 
-		resp, err := client.Get(req.URL())
+		httpreq, err := http.NewRequest("GET", req.URL(), nil)
+		if err != nil {
+			return err
+		}
+		httpreq.Header.Set("User-Agent", UserAgent)
+		resp, err := client.Do(httpreq)
 		if err != nil {
 			return err
 		}
