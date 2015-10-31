@@ -49,6 +49,10 @@ func main() {
 		log.Fatal("URL to OAI endpoint required")
 	}
 
+	if *retry < 1 {
+		log.Fatal("retry > 0 required")
+	}
+
 	endpoint := flag.Arg(0)
 
 	if _, err := url.Parse(endpoint); err != nil {
