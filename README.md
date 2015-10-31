@@ -71,15 +71,19 @@ How it works
 ------------
 
 The harvesting is performed in monthly chunks. The raw data is downloaded and
-appended to a single file per source, set, prefix and month. Once a month has
-been harvested successfully, the file is moved below a cache dir.
+appended to a single temporary file per source, set, prefix and month. Once a
+month has been harvested successfully, the temporary file is moved below a
+cache dir. In short: The cache dir will not contain half-downloaded files.
 
 If you request the data for a given data source, `oaimi` will try to reuse the
-cache and only go out to the interwebs to harvest not yet harvested parts. The
-output file is the concatenated content for the requested date range.
+cache and only harvest not yet cached data. The output file is the
+concatenated content for the requested date range. The output is no valid XML
+because a root element is missing. You can add a custom root element with the
+`-root` flag.
 
 The value proposition of `oaimi` is that you get a single file containing the
-raw data for a specific source.
+raw data for a specific source with a single command and that incremental
+updates are relatively cheap - at most the last 30 days need to be fetched.
 
 For the moment, any further processing must happen in the client (like
 handling deletions).
