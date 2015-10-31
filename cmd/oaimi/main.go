@@ -115,7 +115,7 @@ func main() {
 			log.Fatal(err)
 		}
 		if len(resp.Identify.EarliestDatestamp) < 10 {
-			log.Fatalf("datestamp broken: %s", resp.Identify.EarliestDatestamp)
+			log.Fatalf("datestamp broken: %s - fix: use explicit -from parameter", resp.Identify.EarliestDatestamp)
 		}
 		if From, err = time.Parse("2006-01-02", resp.Identify.EarliestDatestamp[:10]); err != nil {
 			log.Fatal(err)
