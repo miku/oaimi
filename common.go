@@ -82,15 +82,10 @@ type Response struct {
 		} `xml:"metadataFormat" json:"format"`
 	} `xml:"ListMetadataFormats" json:"formats"`
 	ListSets struct {
-		Set []struct {
+		Sets []struct {
 			Spec        string `xml:"setSpec" json:"spec,omitempty"`
 			Name        string `xml:"setName" json:"name,omitempty"`
-			Description struct {
-				DC struct {
-					Lang  string `xml:"lang,attr" json:"lang,omitempty"`
-					Value string `xml:"description" json:"description,omitempty"`
-				} `xml:"dc" json:"dc,omitempty"`
-			} `xml:"setDescription" json:"description,omitempty"`
+			Description string `xml:"setDescription>dc>description" json:"description,omitempty"`
 		} `xml:"set" json:"set"`
 	} `xml:"ListSets" json:"sets"`
 	ListRecords struct {

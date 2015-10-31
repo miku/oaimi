@@ -79,8 +79,8 @@ func main() {
 
 		b, err := json.Marshal(map[string]interface{}{
 			"identify": responseIdentify.Identify,
-			"formats":  responseFormats.ListMetadataFormats,
-			"sets":     responseSets.ListSets,
+			"formats":  responseFormats.ListMetadataFormats.Formats,
+			"sets":     responseSets.ListSets.Sets,
 		})
 		if err != nil {
 			log.Fatal(err)
