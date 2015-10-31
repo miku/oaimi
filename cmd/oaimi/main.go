@@ -56,12 +56,32 @@ func main() {
 	}
 
 	if *identify {
-		req := oaimi.Request{Endpoint: endpoint, Verb: "Identify", Verbose: *verbose, MaxRetry: *retry}
-		resp, err := req.DoOne()
+		var req oaimi.Request
+		var err error
+
+		req = oaimi.Request{Endpoint: endpoint, Verb: "Identify", Verbose: *verbose, MaxRetry: *retry}
+		responseIdentify, err := req.DoOne()
 		if err != nil {
 			log.Fatal(err)
 		}
-		b, err := json.Marshal(resp.Identify)
+
+		req = oaimi.Request{Endpoint: endpoint, Verb: "ListMetadataFormats", Verbose: *verbose, MaxRetry: *retry}
+		responseFormats, err := req.DoOne()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		req = oaimi.Request{Endpoint: endpoint, Verb: "ListSets", Verbose: *verbose, MaxRetry: *retry}
+		responseSets, err := req.DoOne()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		b, err := json.Marshal(map[string]interface{}{
+			"identify": responseIdentify.Identify,
+			"formats":  responseFormats.ListMetadataFormats,
+			"sets":     responseSets.ListSets,
+		})
 		if err != nil {
 			log.Fatal(err)
 		}

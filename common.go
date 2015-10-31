@@ -74,7 +74,25 @@ type Cache struct {
 // Response is a minimal response object, which currently knows only about
 // ListRecords, Identify and errors.
 type Response struct {
-	Date        string `xml:"responseDate"`
+	Date                string `xml:"responseDate"`
+	ListMetadataFormats struct {
+		Formats []struct {
+			Prefix string `xml:"metadataPrefix" json:"prefix"`
+			Schema string `xml:"schema" json:"schema"`
+		} `xml:"metadataFormat" json:"format"`
+	} `xml:"ListMetadataFormats" json:"formats"`
+	ListSets struct {
+		Set []struct {
+			Spec        string `xml:"setSpec" json:"spec,omitempty"`
+			Name        string `xml:"setName" json:"name,omitempty"`
+			Description struct {
+				DC struct {
+					Lang  string `xml:"lang,attr" json:"lang,omitempty"`
+					Value string `xml:"description" json:"description,omitempty"`
+				} `xml:"dc" json:"dc,omitempty"`
+			} `xml:"setDescription" json:"description,omitempty"`
+		} `xml:"set" json:"set"`
+	} `xml:"ListSets" json:"sets"`
 	ListRecords struct {
 		Raw   string `xml:",innerxml"`
 		Token struct {
@@ -132,7 +150,7 @@ func (r Request) URL() string {
 	vals := NewValues()
 	vals.AddIfExists("verb", r.Verb)
 	if r.ResumptionToken == "" {
-		if r.Verb != "Identify" {
+		if r.Verb == "ListRecords" {
 			vals.AddIfExists("from", r.From.Format("2006-01-02"))
 			vals.AddIfExists("until", r.Until.Format("2006-01-02"))
 			vals.AddIfExists("metadataPrefix", r.Prefix)
