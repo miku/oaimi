@@ -13,6 +13,7 @@ package oaimi
 
 import (
 	"bufio"
+	"compress/gzip"
 	"encoding/base64"
 	"encoding/xml"
 	"errors"
@@ -237,7 +238,7 @@ func (r CachedRequest) Fingerprint() string {
 // Filename returns the filename for a request. It only carries date
 // information.
 func (r CachedRequest) Filename() string {
-	return fmt.Sprintf("%s-%s.xml", r.From.Format("2006-01-02"), r.Until.Format("2006-01-02"))
+	return fmt.Sprintf("%s-%s.xml.gz", r.From.Format("2006-01-02"), r.Until.Format("2006-01-02"))
 }
 
 // Path returns the absolute path to the cache file for a single OAI request.
@@ -251,11 +252,17 @@ func (r CachedRequest) Path() string {
 // result set.
 func (r CachedRequest) Do(w io.Writer) error {
 	if !r.IsCached() {
+
 		file, err := ioutil.TempFile("", "oaimi-")
 		if err != nil {
 			return err
 		}
-		bw := bufio.NewWriter(file)
+		if r.Request.Verbose {
+			log.Printf("tmp@%s", file.Name())
+		}
+		gw := gzip.NewWriter(file)
+		bw := bufio.NewWriter(gw)
+
 		if err := r.Request.Do(bw); err != nil {
 			switch t := err.(type) {
 			case OAIError:
@@ -266,8 +273,11 @@ func (r CachedRequest) Do(w io.Writer) error {
 				return err
 			}
 		}
+
 		bw.Flush()
+		gw.Close()
 		file.Close()
+
 		dir := filepath.Dir(r.Path())
 		if _, err := os.Stat(dir); os.IsNotExist(err) {
 			if err := os.MkdirAll(dir, 0755); err != nil {
@@ -283,7 +293,11 @@ func (r CachedRequest) Do(w io.Writer) error {
 	if err != nil {
 		return err
 	}
-	if _, err := io.Copy(w, bufio.NewReader(file)); err != nil {
+	rdr, err := gzip.NewReader(bufio.NewReader(file))
+	if err != nil {
+		return err
+	}
+	if _, err := io.Copy(w, rdr); err != nil {
 		return err
 	}
 	return nil
