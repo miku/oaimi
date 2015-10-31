@@ -69,6 +69,10 @@ func main() {
 			log.Fatal(err)
 		}
 
+		if responseIdentify.Identify.URL == "" {
+			log.Fatal("no URL in identify, possible broken repository")
+		}
+
 		req = oaimi.Request{Endpoint: endpoint, Verb: "ListMetadataFormats", Verbose: *verbose, MaxRetry: *retry}
 		responseFormats, err := req.DoOne()
 		if err != nil {
