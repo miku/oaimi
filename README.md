@@ -63,8 +63,10 @@ Options:
           name of artificial root element tag to use
       -set string
           OAI set
+      -timeout duration
+          request timeout (default 1m0s)
       -until string
-          OAI until (default "2015-10-31")
+          OAI until (default "2015-11-02")
       -v  prints current program version
       -verbose
           more output
