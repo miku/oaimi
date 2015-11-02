@@ -100,3 +100,10 @@ TODO
 ----
 
 * use some kind of decorator pattern: `Batch{Cached{Request}}`
+
+More sites
+==========
+
+* http://roar.eprints.org/listfriends.xml
+* http://www.openarchives.org/pmh/registry/ListFriends
+* http://gita.grainger.uiuc.edu/registry/ListAllAllRepos.asp?format=xml
