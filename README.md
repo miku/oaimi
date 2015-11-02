@@ -6,6 +6,8 @@ README
 No frills OAI harvesting and mirroring. It acts as cache and will take care of
 retrieving new records.
 
+[![Build Status](https://travis-ci.org/miku/oaimi.svg?branch=master)](https://travis-ci.org/miku/oaimi)
+
 ![](https://github.com/miku/oaimi/blob/master/img/convergent_35855_sm.gif)
 
 Installation
