@@ -20,24 +20,66 @@ There are [deb and rpm packages](https://github.com/miku/oaimi/releases) as well
 Usage
 -----
 
-Simplest version:
+Show repository information:
 
-    $ oaimi http://www.example.com/oai > metadata.xml
+    $ oaimi -id http://digital.ub.uni-duesseldorf.de/oai
+    {
+      "formats": [
+        {
+          "prefix": "oai_dc",
+          "schema": "http://www.openarchives.org/OAI/2.0/oai_dc.xsd"
+        },
+        ...
+        {
+          "prefix": "epicur",
+          "schema": "http://www.persistent-identifier.de/xepicur/version1.0/xepicur.xsd"
+        }
+      ],
+      "identify": {
+        "name": "Visual Library Server der Universitäts- und Landesbibliothek Düsseldorf",
+        "url": "http://digital.ub.uni-duesseldorf.de/oai/",
+        "version": "2.0",
+        "email": "docserv@uni-duesseldorf.de",
+        "earliest": "2008-04-18T07:54:14Z",
+        "delete": "no",
+        "granularity": "YYYY-MM-DDThh:mm:ssZ"
+      },
+      "sets": [
+        {
+          "spec": "ulbdvester",
+          "name": "Sammlung Vester (DFG)"
+        },
+        ...
+        {
+          "spec": "ulbd_rsh",
+          "name": "RSH"
+        }
+      ]
+    }
 
-Apply OAI filters:
-
-    $ oaimi -set abc -prefix marcxml -from 2010-01-01 -until 2010-02-01 \
-        http://www.example.com/oai > metadata.xml
-
-Example:
+Harvest the complete repository into a single file (default format is oai_dc, might take a few minutes on first run):
 
     $ oaimi -verbose http://digital.ub.uni-duesseldorf.de/oai > metadata.xml
 
-To list the files, run:
+Harvest only a slice (e.g. set *ulbdvester* in format *epicur* for 2010 only):
+
+    $ oaimi -set ulbdvester -prefix epicur -from 2010-01-01
+            -until 2010-12-31 http://digital.ub.uni-duesseldorf.de/oai > slice.xml
+
+Harvest, and add an artificial root element, so the result gets a bit more valid XML:
+
+    $ oaimi -root records http://digital.ub.uni-duesseldorf.de/oai > withroot.xml
+
+To list the harvested files, run:
 
     $ ls $(oaimi -dirname http://digital.ub.uni-duesseldorf.de/oai)
 
-To empty all cached files:
+Add any parameter to see the resulting cache dir:
+
+    $ ls $(oaimi -dirname -set ulbdvester -prefix epicur -from 2010-01-01 \
+                 -until 2010-12-31 http://digital.ub.uni-duesseldorf.de/oai)
+
+To remove all cached files:
 
     $ rm -rf $(oaimi -dirname http://digital.ub.uni-duesseldorf.de/oai)
 
