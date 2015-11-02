@@ -37,6 +37,7 @@ func main() {
 	identify := flag.Bool("id", false, "show repository information")
 	fromEarliest := flag.Bool("from-earliest", false, "harvest from earliest timestamp")
 	showVersion := flag.Bool("v", false, "prints current program version")
+	timeout := flag.Duration("timeout", 60*time.Second, "request timeout")
 
 	flag.Parse()
 
@@ -63,7 +64,7 @@ func main() {
 		var req oaimi.Request
 		var err error
 
-		req = oaimi.Request{Endpoint: endpoint, Verb: "Identify", Verbose: *verbose, MaxRetry: *retry}
+		req = oaimi.Request{Endpoint: endpoint, Verb: "Identify", Verbose: *verbose, MaxRetry: *retry, Timeout: *timeout}
 		responseIdentify, err := req.DoOne()
 		if err != nil {
 			log.Fatal(err)
@@ -73,13 +74,13 @@ func main() {
 			log.Fatal("no URL in identify, possible broken repository")
 		}
 
-		req = oaimi.Request{Endpoint: endpoint, Verb: "ListMetadataFormats", Verbose: *verbose, MaxRetry: *retry}
+		req = oaimi.Request{Endpoint: endpoint, Verb: "ListMetadataFormats", Verbose: *verbose, MaxRetry: *retry, Timeout: *timeout}
 		responseFormats, err := req.DoOne()
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		req = oaimi.Request{Endpoint: endpoint, Verb: "ListSets", Verbose: *verbose, MaxRetry: *retry}
+		req = oaimi.Request{Endpoint: endpoint, Verb: "ListSets", Verbose: *verbose, MaxRetry: *retry, Timeout: *timeout}
 		responseSets, err := req.DoOne()
 		if err != nil {
 			log.Fatal(err)
@@ -108,6 +109,7 @@ func main() {
 				Set:      *set,
 				Prefix:   *prefix,
 				Endpoint: endpoint,
+				Timeout:  *timeout,
 			},
 		}
 		fmt.Println(filepath.Dir(req.Path()))
@@ -117,7 +119,7 @@ func main() {
 	var From, Until time.Time
 
 	if *from == "" || *fromEarliest {
-		req := oaimi.Request{Endpoint: endpoint, Verb: "Identify", Verbose: *verbose, MaxRetry: *retry}
+		req := oaimi.Request{Endpoint: endpoint, Verb: "Identify", Verbose: *verbose, MaxRetry: *retry, Timeout: *timeout}
 		resp, err := req.DoOne()
 		if err != nil {
 			log.Fatal(err)
@@ -158,6 +160,7 @@ func main() {
 			Until:    Until,
 			Endpoint: endpoint,
 			MaxRetry: *retry,
+			Timeout:  *timeout,
 		},
 	}
 

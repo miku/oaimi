@@ -127,6 +127,7 @@ type Request struct {
 	ResumptionToken string
 	Verbose         bool
 	MaxRetry        int
+	Timeout         time.Duration
 }
 
 // CachedRequest can serve content from HTTP or a local Cache.
@@ -169,6 +170,7 @@ func (req Request) DoOne() (Response, error) {
 	}
 
 	client := pester.New()
+	client.Timeout = req.Timeout
 	client.MaxRetries = req.MaxRetry
 	client.Backoff = pester.ExponentialBackoff
 
@@ -202,6 +204,7 @@ func (req Request) Do(w io.Writer) error {
 		}
 
 		client := pester.New()
+		client.Timeout = req.Timeout
 		client.MaxRetries = req.MaxRetry
 		client.Backoff = pester.ExponentialBackoff
 
