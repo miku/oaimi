@@ -57,13 +57,13 @@ Show repository information:
       ]
     }
 
-Harvest the complete repository into a single file (default format is oai_dc, might take a few minutes on first run):
+Harvest the complete repository into a single file (default format is [oai_dc](http://www.openarchives.org/OAI/2.0/oai_dc.xsd), might take a few minutes on first run):
 
     $ oaimi -verbose http://digital.ub.uni-duesseldorf.de/oai > metadata.xml
 
-Harvest only a slice (e.g. set *ulbdvester* in format *epicur* for 2010 only):
+Harvest only a slice (e.g. set *ulbdvester* in format *epicur* for *2010* only):
 
-    $ oaimi -set ulbdvester -prefix epicur -from 2010-01-01
+    $ oaimi -set ulbdvester -prefix epicur -from 2010-01-01 \
             -until 2010-12-31 http://digital.ub.uni-duesseldorf.de/oai > slice.xml
 
 Harvest, and add an artificial root element, so the result gets a bit more valid XML:
