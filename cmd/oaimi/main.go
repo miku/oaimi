@@ -82,36 +82,18 @@ func main() {
 	}
 
 	if *identify {
-		var req oaimi.Request
-		var err error
+		req := oaimi.Request{Endpoint: endpoint,
+			Verbose:  *verbose,
+			MaxRetry: *retry,
+			Timeout:  *timeout,
+		}
 
-		req = oaimi.Request{Endpoint: endpoint, Verb: "Identify", Verbose: *verbose, MaxRetry: *retry, Timeout: *timeout}
-		responseIdentify, err := req.DoOne()
+		ri, err := oaimi.RepositoryInfo(req)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		if responseIdentify.Identify.URL == "" {
-			log.Fatal("no URL in identify, possible broken repository")
-		}
-
-		req = oaimi.Request{Endpoint: endpoint, Verb: "ListMetadataFormats", Verbose: *verbose, MaxRetry: *retry, Timeout: *timeout}
-		responseFormats, err := req.DoOne()
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		req = oaimi.Request{Endpoint: endpoint, Verb: "ListSets", Verbose: *verbose, MaxRetry: *retry, Timeout: *timeout}
-		responseSets, err := req.DoOne()
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		b, err := json.Marshal(map[string]interface{}{
-			"identify": responseIdentify.Identify,
-			"formats":  responseFormats.ListMetadataFormats.Formats,
-			"sets":     responseSets.ListSets.Sets,
-		})
+		b, err := json.Marshal(ri)
 		if err != nil {
 			log.Fatal(err)
 		}

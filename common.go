@@ -25,6 +25,7 @@ import (
 	"bufio"
 	"compress/gzip"
 	"encoding/base64"
+	"encoding/json"
 	"encoding/xml"
 	"errors"
 	"fmt"
@@ -36,6 +37,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"sync"
 	"time"
 
 	"github.com/jinzhu/now"
@@ -88,7 +90,10 @@ type Cache struct {
 // Response is a minimal response object, which currently knows only about
 // ListRecords, Identify and errors.
 type Response struct {
-	Date                string `xml:"responseDate"`
+	Date    string `xml:"responseDate"`
+	Request struct {
+		Verb string `xml:"verb,attr"`
+	} `xml:"request"`
 	ListMetadataFormats struct {
 		Formats []struct {
 			Prefix string `xml:"metadataPrefix" json:"prefix"`
@@ -390,4 +395,74 @@ func MonthlyDateRange(from, until time.Time) ([]DateRange, error) {
 		from = end.Add(24 * time.Hour)
 	}
 	return ranges, nil
+}
+
+// repositoryInfo groups some repository info.
+type repositoryInfo struct {
+	Identify Response
+	Formats  Response
+	Sets     Response
+}
+
+// MarshalJSON make the output more compact.
+func (ri repositoryInfo) MarshalJSON() ([]byte, error) {
+	return json.Marshal(map[string]interface{}{
+		"identify": ri.Identify.Identify,
+		"formats":  ri.Formats.ListMetadataFormats.Formats,
+		"sets":     ri.Sets.ListSets.Sets,
+	})
+}
+
+// RepositoryInfo returns a compact repositoryInfo object. Runs
+// requests on the repo in parallel.
+func RepositoryInfo(r Request) (repositoryInfo, error) {
+	worker := func(req Request, ch chan Response, wg *sync.WaitGroup) {
+		defer wg.Done()
+		resp, err := req.DoOne()
+		if err != nil {
+			log.Fatal(err)
+		}
+		ch <- resp
+	}
+
+	ch := make(chan Response)
+	infoc := make(chan repositoryInfo)
+	var wg sync.WaitGroup
+
+	go func() {
+		ri := repositoryInfo{}
+		for resp := range ch {
+			switch resp.Request.Verb {
+			case "Identify":
+				ri.Identify = resp
+			case "ListMetadataFormats":
+				ri.Formats = resp
+			case "ListSets":
+				ri.Sets = resp
+			default:
+				log.Fatalf("invalid response: %v", resp)
+			}
+		}
+		infoc <- ri
+	}()
+
+	verbs := []string{"Identify", "ListMetadataFormats", "ListSets"}
+
+	for _, v := range verbs {
+		wg.Add(1)
+		verb := v
+		req := Request{
+			Endpoint: r.Endpoint,
+			Verb:     verb,
+			Verbose:  r.Verbose,
+			MaxRetry: r.MaxRetry,
+			Timeout:  r.Timeout,
+		}
+		go worker(req, ch, &wg)
+	}
+
+	wg.Wait()
+	close(ch)
+
+	return <-infoc, nil
 }
