@@ -433,7 +433,7 @@ func RepositoryInfo(r Request) (repositoryInfo, error) {
 		ri := repositoryInfo{}
 		for resp := range ch {
 			switch resp.Request.Verb {
-			case "Identify":
+			case "Identify", "":
 				ri.Identify = resp
 			case "ListMetadataFormats":
 				ri.Formats = resp
