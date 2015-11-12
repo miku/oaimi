@@ -32,6 +32,7 @@ import (
 	"os/user"
 	"path"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/miku/oaimi"
@@ -79,6 +80,10 @@ func main() {
 
 	if _, err := url.Parse(endpoint); err != nil {
 		log.Fatal("endpoint is not an URL")
+	}
+
+	if !strings.HasPrefix(endpoint, "http") {
+		endpoint = "http://" + endpoint
 	}
 
 	if *identify {
