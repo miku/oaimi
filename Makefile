@@ -48,3 +48,6 @@ cloc:
 sites.tsv:
 	curl "http://www.openarchives.org/pmh/registry/ListFriends" | \
 		xmlstarlet sel -t -m "/BaseURLs/baseURL/text()" -c . -n - | grep -v '^$$' > sites.tsv
+
+harvest: sites.tsv
+	while IFS='' read -r line || [[ -n "$line" ]]; do time oaimi -verbose "$line" > /dev/null; done < sites.tsv
