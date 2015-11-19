@@ -138,6 +138,7 @@ More Docs: http://godoc.org/github.com/miku/oaimi
 Similar projects
 ----------------
 
+* [oai-harvest-manager](https://github.com/TheLanguageArchive/oai-harvest-manager)
 * [Catmandu::OAI](https://github.com/LibreCat/Catmandu-OAI)
 * [Sickle](https://pypi.python.org/pypi/Sickle)
 
@@ -152,3 +153,5 @@ More sites
 * http://roar.eprints.org/listfriends.xml
 * http://www.openarchives.org/pmh/registry/ListFriends
 * http://gita.grainger.uiuc.edu/registry/ListAllAllRepos.asp?format=xml
+* https://centres.clarin.eu/oai_pmh
+* [config-others.xml](https://github.com/TheLanguageArchive/oai-harvest-manager/blob/a4ee9e72c0162a664e1b0ebd71b36b3f2f4eea71/src/main/resources/config-others.xml#L75)
