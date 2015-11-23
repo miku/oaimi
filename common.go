@@ -419,8 +419,17 @@ func RepositoryInfo(r Request) (repositoryInfo, error) {
 	worker := func(req Request, ch chan Response, wg *sync.WaitGroup) {
 		defer wg.Done()
 		resp, err := req.DoOne()
-		if err != nil {
+		switch err := err.(type) {
+		default:
 			log.Fatal(err)
+		case nil:
+			// pass
+		case OAIError:
+			if err.Code == "noSetHierarchy" {
+				log.Println(err)
+			} else {
+				log.Fatal(err)
+			}
 		}
 		ch <- resp
 	}
