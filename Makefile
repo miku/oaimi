@@ -50,4 +50,4 @@ sites.tsv:
 		xmlstarlet sel -t -m "/BaseURLs/baseURL/text()" -c . -n - | grep -v '^$$' > sites.tsv
 
 harvest: sites.tsv
-	while IFS='' read -r line || [[ -n "$line" ]]; do time oaimi -verbose "$line" > /dev/null; done < sites.tsv
+	while IFS='' read -r line || [[ -n "$$line" ]]; do oaimi -verbose "$$line" > /dev/null; done < sites.tsv
