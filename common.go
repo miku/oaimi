@@ -45,7 +45,7 @@ import (
 )
 
 // Version
-const Version = "0.1.9"
+const Version = "0.1.10"
 
 var (
 	ErrInvalidDateRange = errors.New("invalid date range")
