@@ -170,6 +170,7 @@ type Client struct {
 	Timeout  time.Duration
 }
 
+// Do takes an OAI request and turns it into at most one single OAI response.
 func (c Client) Do(req Request) (Response, error) {
 	if c.Verbose {
 		log.Println(req.URL())
@@ -207,4 +208,17 @@ func (c Client) Do(req Request) (Response, error) {
 	}
 
 	return response, nil
+}
+
+// CachingClient can reuse cached answers.
+type CachingClient struct {
+	// Cache
+	Client
+}
+
+// Do turns a single OAI request into at most one response, using cached
+// values, if available.
+func (c CachingClient) Do(req Request) (Response, error) {
+	// TODO(miku): caching.
+	return c.Client.Do(req)
 }
