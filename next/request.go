@@ -100,6 +100,12 @@ func (r Request) URL() (s string, err error) {
 	return fmt.Sprintf("%s?%s", r.Endpoint, values.Encode()), nil
 }
 
+// makeCachePath turns a request into a uniq string, that is safe to use a
+// path component.
+func makeCachePath(req Request) string {
+	return ""
+}
+
 // resumptionToken is part of OAI flow control (3.5)
 type resumptionToken struct {
 	//
@@ -212,13 +218,12 @@ func (c Client) Do(req Request) (Response, error) {
 
 // CachingClient can reuse cached answers.
 type CachingClient struct {
-	// Cache
-	Client
+	Cache  Cache
+	Client Client
 }
 
 // Do turns a single OAI request into at most one response, using cached
 // values, if available.
 func (c CachingClient) Do(req Request) (Response, error) {
-	// TODO(miku): caching.
 	return c.Client.Do(req)
 }

@@ -2,13 +2,17 @@ package next
 
 import (
 	"errors"
+	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
 	"strings"
 )
 
-var ErrBadKey = errors.New("bad key")
+var (
+	ErrBadKey    = errors.New("bad key")
+	ErrNoSuchKey = errors.New("no such key")
+)
 
 type Cache interface {
 	Set(k, v string) error
@@ -50,4 +54,19 @@ func (c DirCache) Set(k, v string) error {
 		}
 	}
 	return WriteFileAtomic(pth, []byte(v), 0644)
+}
+
+func (c DirCache) Get(k string) (string, error) {
+	pth, err := c.cleanKey(k)
+	if err != nil {
+		return "", err
+	}
+	if _, err := os.Stat(pth); os.IsNotExist(err) {
+		return "", ErrNoSuchKey
+	}
+	b, err := ioutil.ReadFile(pth)
+	if err != nil {
+		return "", err
+	}
+	return string(b), nil
 }
