@@ -14,7 +14,7 @@ import (
 )
 
 // Version
-const Version = "0.1.10"
+const Version = "0.2.0"
 
 var (
 	ErrNoEndpoint = errors.New("request: an endpoint is required")
@@ -124,6 +124,14 @@ type resumptionToken struct {
 	CompleteListSize string `xml:"completeListSize,attr"`
 }
 
+// header is the main response of ListIdentifiers requests and also
+// transmitted in ListRecords.
+type header struct {
+	identifier string `xml:"identifier"`
+	datestamp  string `xml:"datestamp"`
+	set        string `xml:"setSpec"`
+}
+
 // Response can hold any answer to an request to a OAI server.
 type Response struct {
 	Date    string `xml:"responseDate"`
@@ -131,8 +139,8 @@ type Response struct {
 		Verb string `xml:"verb,attr"`
 	} `xml:"request"`
 	ListIdentifiers struct {
-		Raw   string          `xml:",innerxml"`
-		Token resumptionToken `xml:"resumptionToken"`
+		Header []header        `xml:"header"`
+		Token  resumptionToken `xml:"resumptionToken"`
 	} `xml:"ListIdentifiers"`
 	ListMetadataFormats struct {
 		xml.Name `xml:"ListMetadataFormats" json:"formats"`
@@ -150,7 +158,10 @@ type Response struct {
 		Token resumptionToken `xml:"resumptionToken"`
 	} `xml:"ListSets" json:"sets"`
 	ListRecords struct {
-		Raw   string          `xml:",innerxml"`
+		Records []struct {
+			Header   header `xml:"header"`
+			Metadata string `xml:",innerxml"`
+		} `xml:"record"`
 		Token resumptionToken `xml:"resumptionToken"`
 	} `xml:"ListRecords"`
 	Identify struct {
@@ -214,16 +225,4 @@ func (c Client) Do(req Request) (Response, error) {
 	}
 
 	return response, nil
-}
-
-// CachingClient can reuse cached answers.
-type CachingClient struct {
-	Cache  Cache
-	Client Client
-}
-
-// Do turns a single OAI request into at most one response, using cached
-// values, if available.
-func (c CachingClient) Do(req Request) (Response, error) {
-	return c.Client.Do(req)
 }
