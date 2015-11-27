@@ -2,6 +2,28 @@ package next
 
 import "testing"
 
+func TestNewDirCache(t *testing.T) {
+	var tests = []struct {
+		s   string
+		dir string
+		err error
+	}{
+		{"/", "/", nil},
+		{"/hello/world/", "/hello/world", nil},
+		{"/hello///world/", "/hello/world", nil},
+		{"/hello/world", "/hello/world", nil},
+	}
+	for _, test := range tests {
+		c, err := NewDirCache(test.s)
+		if err != test.err {
+			t.Errorf("NewDirCache(), got %v, want %v", err, test.err)
+		}
+		if c.directory != test.dir {
+			t.Errorf("DirCache, wrong directory, got %v, want %v", c.directory, test.dir)
+		}
+	}
+}
+
 func TestCleanKey(t *testing.T) {
 	var tests = []struct {
 		key   string
