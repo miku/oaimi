@@ -1,8 +1,4 @@
-// TODO(miku)
-//
-// 3.1.3 Response Compression
-// * Harvesters may include an Accept-Encoding header in their OAI-PMH requests to specify response compression preferences.
-//
+// Package next should simplify building OAI apps.
 package next
 
 import (
@@ -166,6 +162,8 @@ type Response struct {
 	} `xml:"error"`
 }
 
+// Client is a simple client, that can turn a OAI request into a OAI response.
+// Supports retries with exponential backoff.
 type Client struct {
 	Verbose  bool
 	MaxRetry int
@@ -204,7 +202,6 @@ func (c Client) Do(req Request) (Response, error) {
 	if err := decoder.Decode(&response); err != nil {
 		return response, err
 	}
-
 	if response.Error.Code != "" {
 		return response, OAIError{Code: response.Error.Code, Message: response.Error.Message}
 	}
