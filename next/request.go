@@ -377,7 +377,6 @@ func (c WriterClient) Do(req Request) error {
 	switch req.Verb {
 	case "ListIdentifiers", "ListRecords", "ListSets":
 		for {
-			log.Println(resp.ListRecords.Token)
 			token := getResumptionToken(resp)
 			if token == "" {
 				return nil
