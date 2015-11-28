@@ -2,13 +2,16 @@
 package next
 
 import (
+	"bufio"
 	"encoding/xml"
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"path"
 	"path/filepath"
 	"time"
@@ -479,6 +482,47 @@ func (c CachingClient) makeCachePath(req Request) (string, error) {
 	return filepath.Join(c.CacheDir, p), nil
 }
 
+func (c CachingClient) do(req Request) error {
+	file, err := ioutil.TempFile("", "oaimi-")
+	if err != nil {
+		return err
+	}
+	bw := bufio.NewWriter(file)
+	client := NewWriterClient(bw)
+	if err := client.Do(req); err != nil {
+		switch err := err.(type) {
+		case OAIError:
+			if err.Code == "noRecordsMatch" {
+				log.Println("no records")
+			}
+		default:
+			return err
+		}
+	}
+	if err := bw.Flush(); err != nil {
+		return err
+	}
+	if err := file.Close(); err != nil {
+		return err
+	}
+	dst, err := c.makeCachePath(req)
+	if err != nil {
+		return err
+	}
+	dir := path.Dir(dst)
+	fi, err := os.Stat(dir)
+	if os.IsNotExist(err) {
+		if err := os.MkdirAll(dir, 0755); err != nil {
+			return err
+		}
+	} else {
+		if !fi.IsDir() {
+			return fmt.Errorf("%s is not a directory", dir)
+		}
+	}
+	return os.Rename(file.Name(), dst)
+}
+
 func (c CachingClient) Do(req Request) error {
 	switch req.Verb {
 	// do not cache these responses at all
@@ -506,6 +550,13 @@ func (c CachingClient) Do(req Request) error {
 				return err
 			}
 			log.Println(location)
+			if _, err := os.Stat(location); os.IsNotExist(err) {
+				log.Println("harvesting")
+				if err := c.do(r); err != nil {
+					return err
+				}
+			}
+			log.Println("cached")
 		}
 		// 1. segment the request into smaller chunks (weekly or monthly)
 		// 2. for each chunk: if cache file exists write content to writer
