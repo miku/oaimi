@@ -17,7 +17,8 @@ func main() {
 		// Endpoint: "http://journals.sub.uni-hamburg.de/giga/afsp/oai",
 		Endpoint: "http://www.doabooks.org/oai",
 		Verb:     "ListRecords",
-		Prefix:   "oai_dc",
+		// Prefix:   "oai_dc",
+		Prefix: "marcxml",
 	}
 	err := client.Do(req)
 	if err != nil {
