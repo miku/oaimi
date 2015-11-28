@@ -5,7 +5,6 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"net/url"
 	"time"
@@ -27,7 +26,7 @@ var (
 
 var (
 	// DefaultClient should suffice for most use cases.
-	DefaultClient = Client{MaxRetry: 10, Timeout: 60 * time.Second}
+	DefaultClient = NewClient()
 	// OAIVerbs (4. Protocol Requests and Responses)
 	OAIVerbs = map[string]bool{
 		"Identify":            true,
@@ -179,25 +178,34 @@ type Response struct {
 	} `xml:"error"`
 }
 
+// HttpRequestDoer let's us use pester, DefaultClient or others interchangably.
+type HttpRequestDoer interface {
+	Do(*http.Request) (*http.Response, error)
+}
+
 // Client is a simple client, that can turn a OAI request into a OAI response.
-// Supports retries with exponential backoff.
 type Client struct {
-	Verbose  bool
-	MaxRetry int
-	Timeout  time.Duration
+	// client is a delegate for HTTP requests.
+	doer HttpRequestDoer
+}
+
+// NewClient creates a new OAI client with a user supplied http client, e.g.
+// pester.Client, http.DefaultClient.
+func NewClientDoer(doer HttpRequestDoer) *Client {
+	return &Client{doer: doer}
+}
+
+// NewClient create a default client with resilient HTTP client.
+func NewClient() *Client {
+	c := pester.New()
+	c.Timeout = 60 * time.Second
+	c.MaxRetries = 8
+	c.Backoff = pester.ExponentialBackoff
+	return &Client{doer: c}
 }
 
 // Do takes an OAI request and turns it into at most one single OAI response.
-func (c Client) Do(req Request) (Response, error) {
-	if c.Verbose {
-		log.Println(req.URL())
-	}
-
-	client := pester.New()
-	client.Timeout = c.Timeout
-	client.MaxRetries = c.MaxRetry
-	client.Backoff = pester.ExponentialBackoff
-
+func (c *Client) Do(req Request) (Response, error) {
 	var response Response
 
 	link, err := req.URL()
@@ -210,7 +218,7 @@ func (c Client) Do(req Request) (Response, error) {
 		return response, err
 	}
 	hreq.Header.Set("User-Agent", UserAgent)
-	resp, err := client.Do(hreq)
+	resp, err := c.doer.Do(hreq)
 	if err != nil {
 		return response, err
 	}
@@ -221,7 +229,8 @@ func (c Client) Do(req Request) (Response, error) {
 		return response, err
 	}
 	if response.Error.Code != "" {
-		return response, OAIError{Code: response.Error.Code, Message: response.Error.Message}
+		e := response.Error
+		return response, OAIError{Code: e.Code, Message: e.Message}
 	}
 
 	return response, nil
