@@ -5,6 +5,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
@@ -194,21 +195,21 @@ type Client struct {
 
 // NewClient creates a new OAI client with a user supplied http client, e.g.
 // pester.Client, http.DefaultClient.
-func NewClientDoer(doer HttpRequestDoer) *Client {
-	return &Client{doer: doer}
+func NewClientDoer(doer HttpRequestDoer) Client {
+	return Client{doer: doer}
 }
 
 // NewClient create a default client with resilient HTTP client.
-func NewClient() *Client {
+func NewClient() Client {
 	c := pester.New()
 	c.Timeout = 60 * time.Second
 	c.MaxRetries = 8
 	c.Backoff = pester.ExponentialBackoff
-	return &Client{doer: c}
+	return Client{doer: c}
 }
 
 // Do takes an OAI request and turns it into at most one single OAI response.
-func (c *Client) Do(req Request) (Response, error) {
+func (c Client) Do(req Request) (Response, error) {
 	var response Response
 
 	link, err := req.URL()
@@ -245,13 +246,13 @@ func (c *Client) Do(req Request) (Response, error) {
 // request to fulfill it, if necessary.
 type BatchingClient struct {
 	// client is a our OAI delegate
-	client *Client
+	client Client
 }
 
 // NewBatchingClient returns a client that batches HTTP requests and uses a
 // resilient HTTP client.
-func NewBatchingClient() *BatchingClient {
-	return &BatchingClient{client: NewClient()}
+func NewBatchingClient() BatchingClient {
+	return BatchingClient{client: NewClient()}
 }
 
 // getResumptionToken returns the value of the first found resumptionToken.
@@ -271,11 +272,14 @@ func getResumptionToken(resp Response) string {
 	return ""
 }
 
+// Do will turn a single request into a single response by combining many
+// responses into a single one. This is potentially very memory consuming.
 func (c *BatchingClient) Do(req Request) (resp Response, err error) {
 	resp, err = c.client.Do(req)
 	if err != nil {
 		return resp, err
 	}
+	var aggregate = resp
 	switch req.Verb {
 	case "ListIdentifiers", "ListRecords", "ListSets":
 		for {
@@ -284,19 +288,93 @@ func (c *BatchingClient) Do(req Request) (resp Response, err error) {
 				return resp, err
 			}
 			req.ResumptionToken = token
-			r, err := c.client.Do(req)
+			resp, err := c.client.Do(req)
 			if err != nil {
 				return resp, err
 			}
 			switch req.Verb {
 			case "ListIdentifiers":
-				resp.ListIdentifiers.Header = append(resp.ListIdentifiers.Header, r.ListIdentifiers.Header...)
+				aggregate.ListIdentifiers.Header = append(aggregate.ListIdentifiers.Header, resp.ListIdentifiers.Header...)
 			case "ListRecords":
-				resp.ListRecords.Records = append(resp.ListRecords.Records, r.ListRecords.Records...)
+				aggregate.ListRecords.Records = append(aggregate.ListRecords.Records, resp.ListRecords.Records...)
 			case "ListSets":
-				resp.ListSets.Sets = append(resp.ListSets.Sets, r.ListSets.Sets...)
+				aggregate.ListSets.Sets = append(aggregate.ListSets.Sets, resp.ListSets.Sets...)
 			}
 		}
 	}
 	return resp, err
+}
+
+// WriterClient can execute requests, but writes results to a given writer.
+type WriterClient struct {
+	RootTag string
+	client  Client
+	w       io.Writer
+}
+
+func NewWriterClient(w io.Writer) WriterClient {
+	return WriterClient{client: NewClient(), w: w}
+}
+
+func (c WriterClient) writeResponse(resp Response) error {
+	b, err := xml.Marshal(resp)
+	if err != nil {
+		return err
+	}
+	_, err = c.w.Write(b)
+	return err
+}
+
+func (c WriterClient) startDocument() error {
+	if c.RootTag != "" {
+		if _, err := c.w.Write([]byte("<" + c.RootTag + ">")); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (c WriterClient) endDocument() error {
+	if c.RootTag != "" {
+		if _, err := c.w.Write([]byte("</" + c.RootTag + ">")); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// Do will execute a request and write all XML to the writer.
+func (c WriterClient) Do(req Request) error {
+	resp, err := c.client.Do(req)
+	if err != nil {
+		return err
+	}
+
+	if err := c.startDocument(); err != nil {
+		return err
+	}
+	defer c.endDocument()
+
+	if err := c.writeResponse(resp); err != nil {
+		return err
+	}
+	switch req.Verb {
+	case "ListIdentifiers", "ListRecords", "ListSets":
+		for {
+			log.Println(resp.ListRecords.Token)
+			token := getResumptionToken(resp)
+			if token == "" {
+				return nil
+			}
+			req.ResumptionToken = token
+			resp, err = c.client.Do(req)
+			if err != nil {
+				return err
+			}
+			if err := c.writeResponse(resp); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
