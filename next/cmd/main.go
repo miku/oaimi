@@ -10,13 +10,17 @@ import (
 func main() {
 	// client := next.NewBatchingClient()
 	// client := next.NewClient()
-	client := next.NewWriterClient(os.Stdout)
-	client.RootTag = "collection"
+
+	// client := next.NewWriterClient(os.Stdout)
+	// client.RootTag = "collection"
+
+	client := next.NewCachingClient(os.Stdout)
+
 	req := next.Request{
-		// Endpoint: "http://www.ssoar.info/OAIHandler/request",
+		Endpoint: "http://www.ssoar.info/OAIHandler/request",
 		// Endpoint: "http://journals.sub.uni-hamburg.de/giga/afsp/oai",
-		Endpoint: "http://www.doabooks.org/oai",
-		Verb:     "ListRecords",
+		// Endpoint: "http://www.doabooks.org/oai",
+		Verb: "ListRecords",
 		// Prefix:   "oai_dc",
 		Prefix: "marcxml",
 	}

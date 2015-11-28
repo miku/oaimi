@@ -10,8 +10,10 @@ import (
 	"net/http"
 	"net/url"
 	"path"
+	"path/filepath"
 	"time"
 
+	"github.com/mitchellh/go-homedir"
 	"github.com/sethgrid/pester"
 )
 
@@ -28,6 +30,11 @@ var (
 
 	// UserAgent to use for requests
 	UserAgent = fmt.Sprintf("oaimi/%s (https://github.com/miku/oaimi)", Version)
+
+	// DefaultEarliestDate is used, if the repository does not supply one.
+	DefaultEarliestDate = time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC)
+	// DefaultFormat should be supported by most endpoints.
+	DefaultFormat = "oai_dc"
 )
 
 var (
@@ -59,12 +66,38 @@ func (e OAIError) Error() string {
 type Request struct {
 	Endpoint        string
 	Verb            string
-	From            string
-	Until           string
+	From            time.Time
+	Until           time.Time
 	Set             string
 	Prefix          string
 	Identifier      string
 	ResumptionToken string
+}
+
+// useDefaults will fill in default values for From, Until and Prefix if
+// they are missing.
+func useDefaults(r Request) Request {
+	if r.From.IsZero() {
+		c := NewClient()
+		req := Request{Verb: "Identify", Endpoint: r.Endpoint}
+		resp, err := c.Do(req)
+		switch {
+		case err != nil, resp.Identify.EarliestDatestamp == "", len(resp.Identify.EarliestDatestamp) < 10:
+			r.From = DefaultEarliestDate
+		default:
+			r.From, err = time.Parse("2006-01-02", resp.Identify.EarliestDatestamp[:10])
+			if err != nil {
+				r.From = DefaultEarliestDate
+			}
+		}
+	}
+	if r.Until.IsZero() {
+		r.Until = time.Now()
+	}
+	if r.Prefix == "" {
+		r.Prefix = DefaultFormat
+	}
+	return r
 }
 
 // URL returns the absolute URL for a given request. Catches basic errors like
@@ -96,12 +129,18 @@ func (r Request) URL() (s string, err error) {
 			values.Add(k, v)
 		}
 	}
-
-	maybeAdd("from", r.From)
-	maybeAdd("until", r.Until)
-	maybeAdd("set", r.Set)
-	maybeAdd("metadataPrefix", r.Prefix)
-	maybeAdd("identifier", r.Identifier)
+	switch r.Verb {
+	case "ListRecords", "ListSets", "ListIdentifiers":
+		maybeAdd("from", r.From.Format("2006-01-02"))
+		maybeAdd("until", r.Until.Format("2006-01-02"))
+		switch r.Verb {
+		case "ListRecords":
+			maybeAdd("set", r.Set)
+			maybeAdd("metadataPrefix", r.Prefix)
+		}
+	case "GetRecord":
+		maybeAdd("identifier", r.Identifier)
+	}
 	return fmt.Sprintf("%s?%s", r.Endpoint, values.Encode()), nil
 }
 
@@ -118,10 +157,11 @@ func makeCachePath(req Request) (string, error) {
 	switch req.Verb {
 	case "ListRecords", "ListSets", "ListIdentifiers":
 		switch {
-		case req.From == "" || req.Until == "":
+		case req.From.IsZero() || req.Until.IsZero():
 			return "", ErrMissingFromOrUntil
 		default:
-			return path.Join(ref.Host, ref.Path, req.Verb, req.Prefix, fmt.Sprintf("%s-%s.xml", req.From, req.Until)), nil
+			return path.Join(ref.Host, ref.Path, req.Verb, req.Prefix,
+				fmt.Sprintf("%s-%s.xml", req.From.Format("2006-01-02"), req.Until.Format("2006-01-02"))), nil
 		}
 	case "Identify":
 		return path.Join(ref.Host, ref.Path, req.Verb, "Identify"), nil
@@ -160,7 +200,8 @@ type Response struct {
 	xml.Name `xml:"response"`
 	Date     string `xml:"responseDate"`
 	Request  struct {
-		Verb string `xml:"verb,attr"`
+		Verb     string `xml:"verb,attr"`
+		Endpoint string `xml:",chardata"`
 	} `xml:"request"`
 	ListIdentifiers struct {
 		Header []header        `xml:"header"`
@@ -198,6 +239,14 @@ type Response struct {
 		EarliestDatestamp string `xml:"earliestDatestamp" json:"earliest"`
 		DeletePolicy      string `xml:"deletedRecord" json:"delete"`
 		Granularity       string `xml:"granularity" json:"granularity"`
+		Description       struct {
+			Identifier struct {
+				Scheme               string `xml:"scheme"`
+				RepositoryIdentifier string `xml:"repositoryIdentifier"`
+				Delimiter            string `xml:"delimiter"`
+				SampleIdentifier     string `xml:"sampleIdentifier"`
+			} `xml:"oai-identifier"`
+		} `xml:"description"`
 	} `xml:"Identify"`
 	Error struct {
 		Code    string `xml:"code,attr"`
@@ -400,6 +449,68 @@ func (c WriterClient) Do(req Request) error {
 				return err
 			}
 		}
+	}
+	return nil
+}
+
+// CachingClient will write XML to a given writer. This client encapsulates
+// cache logic which helps to make subsequent requests fast. A RootTag can be
+// specified. Responses are cached by default below the $HOME/.oaimicache
+// directory.
+type CachingClient struct {
+	RootTag  string
+	CacheDir string
+	w        io.Writer
+}
+
+func NewCachingClient(w io.Writer) CachingClient {
+	home, err := homedir.Dir()
+	if err != nil {
+		panic(err)
+	}
+	return CachingClient{RootTag: "collection", CacheDir: filepath.Join(home, ".oaimicache"), w: w}
+}
+
+func (c CachingClient) makeCachePath(req Request) (string, error) {
+	p, err := makeCachePath(req)
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(c.CacheDir, p), nil
+}
+
+func (c CachingClient) Do(req Request) error {
+	switch req.Verb {
+	// do not cache these responses at all
+	case "Identify", "ListMetadataFormats", "ListSets":
+		wc := WriterClient{client: NewClient(), w: c.w}
+		wc.Do(req)
+	case "ListRecords", "ListIdentifiers":
+		req := useDefaults(req)
+		log.Println(req)
+		windows, err := Window{From: req.From, Until: req.Until}.Weekly()
+		if err != nil {
+			return err
+		}
+		for _, w := range windows {
+			r := Request{
+				Endpoint: req.Endpoint,
+				Verb:     req.Verb,
+				Prefix:   req.Prefix,
+				Set:      req.Set,
+				From:     w.From,
+				Until:    w.Until,
+			}
+			location, err := c.makeCachePath(r)
+			if err != nil {
+				return err
+			}
+			log.Println(location)
+		}
+		// 1. segment the request into smaller chunks (weekly or monthly)
+		// 2. for each chunk: if cache file exists write content to writer
+		// 3. if file does not exists, download into temporary location
+		// 4. move into final location based on makeCachePath for now
 	}
 	return nil
 }
