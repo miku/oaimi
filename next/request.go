@@ -19,10 +19,12 @@ import (
 const Version = "0.2.0"
 
 var (
-	ErrNoEndpoint = errors.New("request: an endpoint is required")
-	ErrNoVerb     = errors.New("no verb")
-	ErrBadVerb    = errors.New("bad verb")
-	ErrNoPath     = errors.New("no path")
+	ErrNoEndpoint         = errors.New("request: an endpoint is required")
+	ErrNoVerb             = errors.New("no verb")
+	ErrBadVerb            = errors.New("bad verb")
+	ErrCannotCreatePath   = errors.New("cannot create path")
+	ErrNoHost             = errors.New("no host")
+	ErrMissingFromOrUntil = errors.New("missing from or until")
 
 	// UserAgent to use for requests
 	UserAgent = fmt.Sprintf("oaimi/%s (https://github.com/miku/oaimi)", Version)
@@ -110,13 +112,21 @@ func makeCachePath(req Request) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	if ref.Host == "" {
+		return "", ErrNoHost
+	}
 	switch req.Verb {
 	case "ListRecords", "ListSets", "ListIdentifiers":
-		return path.Join(ref.Host, ref.Path, req.Verb, req.Prefix, fmt.Sprintf("%s-%s.xml", req.From, req.Until)), nil
+		switch {
+		case req.From == "" || req.Until == "":
+			return "", ErrMissingFromOrUntil
+		default:
+			return path.Join(ref.Host, ref.Path, req.Verb, req.Prefix, fmt.Sprintf("%s-%s.xml", req.From, req.Until)), nil
+		}
 	case "Identify":
 		return path.Join(ref.Host, ref.Path, req.Verb, "Identify"), nil
 	}
-	return "", ErrNoPath
+	return "", ErrCannotCreatePath
 }
 
 // resumptionToken is part of OAI flow control (3.5)

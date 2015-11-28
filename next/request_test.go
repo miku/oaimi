@@ -47,9 +47,30 @@ func TestMakeCachePath(t *testing.T) {
 		err error
 	}{
 		{
-			Request{Verb: "ListRecords", Endpoint: "http://www.doabooks.org/oai", From: "2000-01-01", Until: "2001-01-01", Prefix: "marcxml"},
+			Request{
+				Verb:     "ListRecords",
+				Endpoint: "http://www.doabooks.org/oai",
+				From:     "2000-01-01",
+				Until:    "2001-01-01",
+				Prefix:   "marcxml"},
 			"www.doabooks.org/oai/ListRecords/marcxml/2000-01-01-2001-01-01.xml",
 			nil,
+		},
+		{
+			Request{
+				Verb:     "ListRecords",
+				Endpoint: "http://www.doabooks.org/oai",
+				Prefix:   "marcxml"},
+			"",
+			ErrMissingFromOrUntil,
+		},
+		{
+			Request{
+				Verb:     "ListRecords",
+				Endpoint: "",
+				Prefix:   "marcxml"},
+			"",
+			ErrNoHost,
 		},
 	}
 	for _, test := range tests {
