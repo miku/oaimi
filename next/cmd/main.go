@@ -17,7 +17,8 @@ func main() {
 	client := next.NewCachingClient(os.Stdout)
 
 	req := next.Request{
-		Endpoint: "http://www.ssoar.info/OAIHandler/request",
+		Endpoint: "http://www.librelloph.com/oai",
+		// Endpoint: "http://www.ssoar.info/OAIHandler/request",
 		// Endpoint: "http://journals.sub.uni-hamburg.de/giga/afsp/oai",
 		// Endpoint: "http://www.doabooks.org/oai",
 		Verb: "ListRecords",
