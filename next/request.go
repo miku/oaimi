@@ -5,6 +5,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 	"time"
@@ -126,9 +127,9 @@ type resumptionToken struct {
 // header is the main response of ListIdentifiers requests and also
 // transmitted in ListRecords.
 type header struct {
-	identifier string `xml:"identifier"`
-	datestamp  string `xml:"datestamp"`
-	set        string `xml:"setSpec"`
+	Identifier string `xml:"identifier"`
+	Datestamp  string `xml:"datestamp"`
+	Set        string `xml:"setSpec"`
 }
 
 // Response can hold any answer to an request to a OAI server.
@@ -159,7 +160,9 @@ type Response struct {
 	ListRecords struct {
 		Records []struct {
 			Header   header `xml:"header"`
-			Metadata string `xml:",innerxml"`
+			Metadata struct {
+				Verbatim string `xml:",innerxml"`
+			} `xml:"metadata"`
 		} `xml:"record"`
 		Token resumptionToken `xml:"resumptionToken"`
 	} `xml:"ListRecords"`
@@ -213,6 +216,8 @@ func (c *Client) Do(req Request) (Response, error) {
 		return response, err
 	}
 
+	log.Println(link)
+
 	hreq, err := http.NewRequest("GET", link, nil)
 	if err != nil {
 		return response, err
@@ -234,4 +239,64 @@ func (c *Client) Do(req Request) (Response, error) {
 	}
 
 	return response, nil
+}
+
+// BatchingClient takes a single OAI request but will do more the one HTTP
+// request to fulfill it, if necessary.
+type BatchingClient struct {
+	// client is a our OAI delegate
+	client *Client
+}
+
+// NewBatchingClient returns a client that batches HTTP requests and uses a
+// resilient HTTP client.
+func NewBatchingClient() *BatchingClient {
+	return &BatchingClient{client: NewClient()}
+}
+
+// getResumptionToken returns the value of the first found resumptionToken.
+func getResumptionToken(resp Response) string {
+	// In cases where the request that generated this response did not result
+	// in an error or exception condition, the attributes and attribute values
+	// of the request element must match the key=value pairs of the protocol
+	// request (3.2 XML Response Format).
+	switch resp.Request.Verb {
+	case "ListIdentifiers":
+		return resp.ListIdentifiers.Token.Value
+	case "ListRecords":
+		return resp.ListRecords.Token.Value
+	case "ListSets":
+		return resp.ListSets.Token.Value
+	}
+	return ""
+}
+
+func (c *BatchingClient) Do(req Request) (resp Response, err error) {
+	resp, err = c.client.Do(req)
+	if err != nil {
+		return resp, err
+	}
+	switch req.Verb {
+	case "ListIdentifiers", "ListRecords", "ListSets":
+		for {
+			token := getResumptionToken(resp)
+			if token == "" {
+				return resp, err
+			}
+			req.ResumptionToken = token
+			r, err := c.client.Do(req)
+			if err != nil {
+				return resp, err
+			}
+			switch req.Verb {
+			case "ListIdentifiers":
+				resp.ListIdentifiers.Header = append(resp.ListIdentifiers.Header, r.ListIdentifiers.Header...)
+			case "ListRecords":
+				resp.ListRecords.Records = append(resp.ListRecords.Records, r.ListRecords.Records...)
+			case "ListSets":
+				resp.ListSets.Sets = append(resp.ListSets.Sets, r.ListSets.Sets...)
+			}
+		}
+	}
+	return resp, err
 }
