@@ -39,3 +39,26 @@ func TestRequestURL(t *testing.T) {
 		}
 	}
 }
+
+func TestMakeCachePath(t *testing.T) {
+	var tests = []struct {
+		req Request
+		p   string
+		err error
+	}{
+		{
+			Request{Verb: "ListRecords", Endpoint: "http://www.doabooks.org/oai", From: "2000-01-01", Until: "2001-01-01", Prefix: "marcxml"},
+			"www.doabooks.org/oai/ListRecords/marcxml/2000-01-01-2001-01-01.xml",
+			nil,
+		},
+	}
+	for _, test := range tests {
+		result, err := makeCachePath(test.req)
+		if err != test.err {
+			t.Errorf("makeCachePath(), got %v, want %v", err, test.err)
+		}
+		if result != test.p {
+			t.Errorf("makeCachePath(), got %v, want %v", result, test.p)
+		}
+	}
+}

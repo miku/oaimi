@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"path"
 	"time"
 
 	"github.com/sethgrid/pester"
@@ -21,6 +22,7 @@ var (
 	ErrNoEndpoint = errors.New("request: an endpoint is required")
 	ErrNoVerb     = errors.New("no verb")
 	ErrBadVerb    = errors.New("bad verb")
+	ErrNoPath     = errors.New("no path")
 
 	// UserAgent to use for requests
 	UserAgent = fmt.Sprintf("oaimi/%s (https://github.com/miku/oaimi)", Version)
@@ -103,8 +105,18 @@ func (r Request) URL() (s string, err error) {
 
 // makeCachePath turns a request into a uniq string, that is safe to use a
 // path component.
-func makeCachePath(req Request) string {
-	return ""
+func makeCachePath(req Request) (string, error) {
+	ref, err := url.Parse(req.Endpoint)
+	if err != nil {
+		return "", err
+	}
+	switch req.Verb {
+	case "ListRecords", "ListSets", "ListIdentifiers":
+		return path.Join(ref.Host, ref.Path, req.Verb, req.Prefix, fmt.Sprintf("%s-%s.xml", req.From, req.Until)), nil
+	case "Identify":
+		return path.Join(ref.Host, ref.Path, req.Verb, "Identify"), nil
+	}
+	return "", ErrNoPath
 }
 
 // resumptionToken is part of OAI flow control (3.5)
@@ -135,8 +147,9 @@ type header struct {
 
 // Response can hold any answer to an request to a OAI server.
 type Response struct {
-	Date    string `xml:"responseDate"`
-	Request struct {
+	xml.Name `xml:"response"`
+	Date     string `xml:"responseDate"`
+	Request  struct {
 		Verb string `xml:"verb,attr"`
 	} `xml:"request"`
 	ListIdentifiers struct {
