@@ -294,11 +294,14 @@ func (c *BatchingClient) Do(req Request) (resp Response, err error) {
 			}
 			switch req.Verb {
 			case "ListIdentifiers":
-				aggregate.ListIdentifiers.Header = append(aggregate.ListIdentifiers.Header, resp.ListIdentifiers.Header...)
+				aggregate.ListIdentifiers.Header = append(aggregate.ListIdentifiers.Header,
+					resp.ListIdentifiers.Header...)
 			case "ListRecords":
-				aggregate.ListRecords.Records = append(aggregate.ListRecords.Records, resp.ListRecords.Records...)
+				aggregate.ListRecords.Records = append(aggregate.ListRecords.Records,
+					resp.ListRecords.Records...)
 			case "ListSets":
-				aggregate.ListSets.Sets = append(aggregate.ListSets.Sets, resp.ListSets.Sets...)
+				aggregate.ListSets.Sets = append(aggregate.ListSets.Sets,
+					resp.ListSets.Sets...)
 			}
 		}
 	}
