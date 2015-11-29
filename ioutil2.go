@@ -1,10 +1,7 @@
 // Copyright 2012, Google Inc. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
-
-// Package next provides extra functionality along similar lines to io/ioutil.
-// TODO(miku): move into place
-package next
+package oaimi
 
 import (
 	"io/ioutil"

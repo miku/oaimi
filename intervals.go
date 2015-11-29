@@ -1,4 +1,4 @@
-package next
+package oaimi
 
 import (
 	"errors"

@@ -1,5 +1,4 @@
-// Package next should simplify building OAI apps.
-package next
+package oaimi
 
 import (
 	"bufio"
@@ -20,9 +19,6 @@ import (
 	"github.com/mitchellh/go-homedir"
 	"github.com/sethgrid/pester"
 )
-
-// Version
-const Version = "0.2.0"
 
 var (
 	ErrNoEndpoint         = errors.New("request: an endpoint is required")
