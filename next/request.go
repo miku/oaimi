@@ -602,10 +602,11 @@ func (c CachingClient) Do(req Request) error {
 	if err := c.startDocument(); err != nil {
 		return err
 	}
-	defer c.endDocument()
+	defer func() error {
+		return c.endDocument()
+	}()
 
 	switch req.Verb {
-	// do not cache these responses at all
 	case "Identify", "ListMetadataFormats", "ListSets":
 		wc := WriterClient{client: NewClient(), w: c.w}
 		return wc.Do(req)
