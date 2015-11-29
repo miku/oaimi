@@ -22,9 +22,10 @@ func main() {
 		// Endpoint: "http://www.ssoar.info/OAIHandler/request",
 		Endpoint: "http://journals.sub.uni-hamburg.de/giga/afsp/oai",
 		// Endpoint: "http://www.doabooks.org/oai",
-		Verb: "ListRecords",
+		// Verb: "ListRecords",
+		Verb: "ListSets",
 		// Prefix:   "oai_dc",
-		Prefix: "marcxml",
+		// Prefix: "marcxml",
 	}
 	err := client.Do(req)
 	if err != nil {

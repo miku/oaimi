@@ -134,7 +134,7 @@ func (r Request) URL() (s string, err error) {
 		}
 	}
 	switch r.Verb {
-	case "ListRecords", "ListSets", "ListIdentifiers":
+	case "ListRecords", "ListIdentifiers":
 		maybeAdd("from", r.From.Format("2006-01-02"))
 		maybeAdd("until", r.Until.Format("2006-01-02"))
 		switch r.Verb {
@@ -579,7 +579,7 @@ func (c CachingClient) Do(req Request) error {
 	// do not cache these responses at all
 	case "Identify", "ListMetadataFormats", "ListSets":
 		wc := WriterClient{client: NewClient(), w: c.w}
-		wc.Do(req)
+		return wc.Do(req)
 	case "ListRecords", "ListIdentifiers":
 		req := useDefaults(req)
 		log.Println(req)
