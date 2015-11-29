@@ -6,7 +6,7 @@ import (
 )
 
 // RepositoryInfo returns information about a repository. Returns after at
-// most ten seconds.
+// most 30 seconds.
 func RepositoryInfo(endpoint string) (map[string]interface{}, error) {
 	start := time.Now()
 	result := make(map[string]interface{})
@@ -37,7 +37,7 @@ func RepositoryInfo(endpoint string) (map[string]interface{}, error) {
 
 	var received int
 	var errors []error
-	timeout := time.After(10 * time.Second)
+	timeout := time.After(30 * time.Second)
 
 	for {
 		select {
