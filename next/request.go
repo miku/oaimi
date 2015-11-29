@@ -206,18 +206,18 @@ type Response struct {
 	Request  struct {
 		Verb     string `xml:"verb,attr"`
 		Endpoint string `xml:",chardata"`
-	} `xml:"request"`
+	} `xml:"request,omitempty"`
 	ListIdentifiers struct {
 		Header []header        `xml:"header"`
 		Token  resumptionToken `xml:"resumptionToken"`
-	} `xml:"ListIdentifiers"`
+	} `xml:"ListIdentifiers,omitempty"`
 	ListMetadataFormats struct {
 		xml.Name `xml:"ListMetadataFormats" json:"formats"`
 		Formats  []struct {
 			Prefix string `xml:"metadataPrefix" json:"prefix"`
 			Schema string `xml:"schema" json:"schema"`
 		} `xml:"metadataFormat" json:"format"`
-	}
+	} `xml:"ListMetadataFormats,omitempty" json:"sets"`
 	ListSets struct {
 		Sets []struct {
 			Spec        string `xml:"setSpec" json:"spec,omitempty"`
@@ -225,7 +225,7 @@ type Response struct {
 			Description string `xml:"setDescription>dc>description" json:"description,omitempty"`
 		} `xml:"set" json:"set"`
 		Token resumptionToken `xml:"resumptionToken"`
-	} `xml:"ListSets" json:"sets"`
+	} `xml:"ListSets,omitempty" json:"sets"`
 	ListRecords struct {
 		Records []struct {
 			Header   header `xml:"header"`
@@ -234,24 +234,24 @@ type Response struct {
 			} `xml:"metadata"`
 		} `xml:"record"`
 		Token resumptionToken `xml:"resumptionToken"`
-	} `xml:"ListRecords"`
+	} `xml:"ListRecords,omitempty"`
 	Identify struct {
-		Name              string `xml:"repositoryName" json:"name"`
-		URL               string `xml:"baseURL" json:"url"`
-		Version           string `xml:"protocolVersion" json:"version"`
-		AdminEmail        string `xml:"adminEmail" json:"email"`
-		EarliestDatestamp string `xml:"earliestDatestamp" json:"earliest"`
-		DeletePolicy      string `xml:"deletedRecord" json:"delete"`
-		Granularity       string `xml:"granularity" json:"granularity"`
+		Name              string `xml:"repositoryName,omitempty" json:"name"`
+		URL               string `xml:"baseURL,omitempty" json:"url"`
+		Version           string `xml:"protocolVersion,omitempty" json:"version"`
+		AdminEmail        string `xml:"adminEmail,omitempty" json:"email"`
+		EarliestDatestamp string `xml:"earliestDatestamp,omitempty" json:"earliest"`
+		DeletePolicy      string `xml:"deletedRecord,omitempty" json:"delete"`
+		Granularity       string `xml:"granularity,omitempty" json:"granularity"`
 		Description       struct {
 			Identifier struct {
-				Scheme               string `xml:"scheme"`
-				RepositoryIdentifier string `xml:"repositoryIdentifier"`
-				Delimiter            string `xml:"delimiter"`
-				SampleIdentifier     string `xml:"sampleIdentifier"`
-			} `xml:"oai-identifier"`
-		} `xml:"description"`
-	} `xml:"Identify"`
+				Scheme               string `xml:"scheme,omitempty"`
+				RepositoryIdentifier string `xml:"repositoryIdentifier,omitempty"`
+				Delimiter            string `xml:"delimiter,omitempty"`
+				SampleIdentifier     string `xml:"sampleIdentifier,omitempty"`
+			} `xml:"oai-identifier,omitempty"`
+		} `xml:"description,omitempty"`
+	} `xml:"Identify,omitempty"`
 	Error struct {
 		Code    string `xml:"code,attr"`
 		Message string `xml:",chardata"`
