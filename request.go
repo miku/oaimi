@@ -80,7 +80,7 @@ type Request struct {
 
 // useDefaults will fill in default values for From, Until and Prefix if
 // they are missing.
-func (r *Request) useDefaults() {
+func (r *Request) UseDefaults() {
 	if r.From.IsZero() {
 		c := NewClient()
 		req := Request{Verb: "Identify", Endpoint: r.Endpoint}
@@ -627,7 +627,7 @@ func (c CachingClient) Do(req Request) error {
 		client := WriterClient{client: NewClient(), w: c.w}
 		return client.Do(req)
 	case "ListRecords", "ListIdentifiers":
-		req.useDefaults()
+		req.UseDefaults()
 		windows, err := Window{From: req.From, Until: req.Until}.Weekly()
 		if err != nil {
 			return err
