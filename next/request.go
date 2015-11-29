@@ -458,15 +458,16 @@ func (c WriterClient) Do(req Request) error {
 }
 
 // CachingClient will write XML to a given writer. This client encapsulates
-// cache logic which helps to make subsequent requests fast. A RootTag can be
-// specified. Responses are cached by default below the $HOME/.oaimicache
-// directory.
+// cache logic which helps to make subsequent requests fast. A root element is
+// optional.
 type CachingClient struct {
 	RootTag  string
 	CacheDir string
 	w        io.Writer
 }
 
+// NewCachingClient creates a new client, with a default location for cached
+// files. All XML responses will be written to the given io.Writer.
 func NewCachingClient(w io.Writer) CachingClient {
 	home, err := homedir.Dir()
 	if err != nil {
@@ -475,6 +476,8 @@ func NewCachingClient(w io.Writer) CachingClient {
 	return CachingClient{RootTag: "collection", CacheDir: filepath.Join(home, ".oaimicache"), w: w}
 }
 
+// makeCachePath assembles a destination path for the cache file for a given
+// request. This method does not create any file or directory.
 func (c CachingClient) makeCachePath(req Request) (string, error) {
 	ref, err := url.Parse(req.Endpoint)
 	if err != nil {
@@ -497,6 +500,7 @@ func (c CachingClient) makeCachePath(req Request) (string, error) {
 	return "", ErrCannotCreatePath
 }
 
+// ensureDir ensures a path exists and is a directory.
 func ensureDir(dir string) error {
 	fi, err := os.Stat(dir)
 	if os.IsNotExist(err) {
@@ -511,6 +515,7 @@ func ensureDir(dir string) error {
 	return nil
 }
 
+// startDocument inserts a root tag, if given.
 func (c CachingClient) startDocument() error {
 	if c.RootTag != "" {
 		if _, err := c.w.Write([]byte("<" + c.RootTag + ">")); err != nil {
@@ -520,6 +525,7 @@ func (c CachingClient) startDocument() error {
 	return nil
 }
 
+// endDocument closes the root tag.
 func (c CachingClient) endDocument() error {
 	if c.RootTag != "" {
 		if _, err := c.w.Write([]byte("</" + c.RootTag + ">")); err != nil {
@@ -529,6 +535,8 @@ func (c CachingClient) endDocument() error {
 	return nil
 }
 
+// do executes a oai request and will create a compressed file under the
+// client's CacheDir.
 func (c CachingClient) do(req Request) error {
 	file, err := ioutil.TempFile("", "oaimi-")
 	if err != nil {
@@ -569,6 +577,27 @@ func (c CachingClient) do(req Request) error {
 	return nil
 }
 
+// copyFile moves the file content to the writer.
+func (c CachingClient) copyFile(filename string) error {
+	file, err := os.Open(filename)
+	if err != nil {
+		return err
+	}
+	defer func() error { return file.Close() }()
+
+	gz, err := gzip.NewReader(bufio.NewReader(file))
+	if err != nil {
+		return err
+	}
+	defer func() error { return gz.Close() }()
+
+	_, err = io.Copy(c.w, gz)
+	return err
+}
+
+// Do executes a given request. If the request is not yet cached, the content
+// is retrieved and persisted. Requests are internally split up into weekly
+// windows to reduce load and to latency in case of errors.
 func (c CachingClient) Do(req Request) error {
 	if err := c.startDocument(); err != nil {
 		return err
@@ -595,30 +624,16 @@ func (c CachingClient) Do(req Request) error {
 				From:     w.From,
 				Until:    w.Until,
 			}
-			location, err := c.makeCachePath(r)
+			filename, err := c.makeCachePath(r)
 			if err != nil {
 				return err
 			}
-			if _, err := os.Stat(location); os.IsNotExist(err) {
+			if _, err := os.Stat(filename); os.IsNotExist(err) {
 				if err := c.do(r); err != nil {
 					return err
 				}
 			}
-			file, err := os.Open(location)
-			if err != nil {
-				return err
-			}
-			gz, err := gzip.NewReader(bufio.NewReader(file))
-			if err != nil {
-				return err
-			}
-			if _, err = io.Copy(c.w, gz); err != nil {
-				return err
-			}
-			if err := gz.Close(); err != nil {
-				return err
-			}
-			if err := file.Close(); err != nil {
+			if err := c.copyFile(filename); err != nil {
 				return err
 			}
 		}
