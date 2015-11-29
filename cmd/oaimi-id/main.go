@@ -10,6 +10,7 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/miku/oaimi"
 )
@@ -17,16 +18,20 @@ import (
 func worker(queue chan string, out chan string, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for endpoint := range queue {
-		m, err := oaimi.RepositoryInfo(endpoint)
-		if err != nil {
-			log.Printf("%s: %v", endpoint, err)
-			continue
+		for i := 0; i < 5; i++ {
+			m, err := oaimi.RepositoryInfo(endpoint)
+			if err != nil {
+				log.Printf("attempt %d: %s: %v", i, endpoint, err)
+				time.Sleep(10 * time.Second)
+				continue
+			}
+			b, err := json.Marshal(m)
+			if err != nil {
+				log.Fatal(err)
+			}
+			out <- string(b)
+			break
 		}
-		b, err := json.Marshal(m)
-		if err != nil {
-			log.Fatal(err)
-		}
-		out <- string(b)
 	}
 }
 
@@ -38,7 +43,7 @@ func writer(in chan string, done chan bool) {
 }
 
 func main() {
-	workers := flag.Int("w", 32, "requests in parallel")
+	workers := flag.Int("w", 8, "requests in parallel")
 	flag.Parse()
 
 	var reader io.Reader
