@@ -582,7 +582,6 @@ func (c CachingClient) Do(req Request) error {
 		return wc.Do(req)
 	case "ListRecords", "ListIdentifiers":
 		req := useDefaults(req)
-		log.Println(req)
 		windows, err := Window{From: req.From, Until: req.Until}.Weekly()
 		if err != nil {
 			return err
