@@ -199,7 +199,7 @@ type header struct {
 	Set        string `xml:"setSpec"`
 }
 
-// Response can hold any answer to an request to a OAI server.
+// Response can hold most answers to an request to a OAI server.
 type Response struct {
 	xml.Name `xml:"response"`
 	Date     string `xml:"responseDate"`
@@ -245,12 +245,12 @@ type Response struct {
 		Granularity       string `xml:"granularity,omitempty" json:"granularity"`
 		Description       struct {
 			Identifier struct {
-				Scheme               string `xml:"scheme,omitempty"`
-				RepositoryIdentifier string `xml:"repositoryIdentifier,omitempty"`
-				Delimiter            string `xml:"delimiter,omitempty"`
-				SampleIdentifier     string `xml:"sampleIdentifier,omitempty"`
-			} `xml:"oai-identifier,omitempty"`
-		} `xml:"description,omitempty"`
+				Scheme               string `xml:"scheme,omitempty" json:"scheme,omitempty"`
+				RepositoryIdentifier string `xml:"repositoryIdentifier,omitempty" json:"repositoryIdentifier,omitempty"`
+				Delimiter            string `xml:"delimiter,omitempty" json:"delimiter,omitempty"`
+				SampleIdentifier     string `xml:"sampleIdentifier,omitempty" json:"sampleIdentifier,omitempty"`
+			} `xml:"oai-identifier,omitempty" json:"identifier,omitempty"`
+		} `xml:"description,omitempty" json:"description,omitempty"`
 	} `xml:"Identify,omitempty"`
 	Error struct {
 		Code    string `xml:"code,attr"`
@@ -364,7 +364,7 @@ func (c *BatchingClient) Do(req Request) (resp Response, err error) {
 				return resp, err
 			}
 			req.ResumptionToken = token
-			resp, err := c.client.Do(req)
+			resp, err = c.client.Do(req)
 			if err != nil {
 				return resp, err
 			}

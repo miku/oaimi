@@ -1,6 +1,9 @@
 package main
 
 import (
+	"encoding/json"
+	"flag"
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -9,6 +12,27 @@ import (
 )
 
 func main() {
+
+	showRepoInfo := flag.Bool("id", false, "show repository info")
+
+	flag.Parse()
+
+	if flag.NArg() == 0 {
+		log.Fatal("endpoint URL required")
+	}
+
+	if *showRepoInfo {
+		info, err := next.RepositoryInfo(flag.Arg(0))
+		if err != nil {
+			log.Fatal(err)
+		}
+		b, err := json.Marshal(info)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(string(b))
+		os.Exit(0)
+	}
 	// client := next.NewBatchingClient()
 	// client := next.NewClient()
 
