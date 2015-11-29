@@ -1,7 +1,7 @@
 package next
 
 import (
-	"log"
+	"fmt"
 	"time"
 )
 
@@ -37,7 +37,6 @@ func RepositoryInfo(endpoint string) (map[string]interface{}, error) {
 	var received int
 	timeout := time.After(10 * time.Second)
 
-Loop:
 	for {
 		select {
 		case msg := <-ch:
@@ -46,11 +45,10 @@ Loop:
 			}
 			received++
 			if received == 3 {
-				break Loop
+				return result, nil
 			}
 		case <-timeout:
-			log.Println("operation timed out")
-			break Loop
+			return result, fmt.Errorf("timed out")
 		}
 	}
 	return result, nil
