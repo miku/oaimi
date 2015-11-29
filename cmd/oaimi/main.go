@@ -89,8 +89,6 @@ func main() {
 		}
 	}
 
-	req = oaimi.UseDefaults(req)
-
 	if *dirname {
 		dir, err := client.RequestCacheDir(req)
 		if err != nil {

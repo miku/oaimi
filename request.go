@@ -80,7 +80,7 @@ type Request struct {
 
 // useDefaults will fill in default values for From, Until and Prefix if
 // they are missing.
-func UseDefaults(r Request) Request {
+func (r *Request) useDefaults() {
 	if r.From.IsZero() {
 		c := NewClient()
 		req := Request{Verb: "Identify", Endpoint: r.Endpoint}
@@ -101,12 +101,11 @@ func UseDefaults(r Request) Request {
 	if r.Prefix == "" {
 		r.Prefix = DefaultFormat
 	}
-	return r
 }
 
 // URL returns the absolute URL for a given request. Catches basic errors like
 // missing endpoint or bad verb.
-func (r Request) URL() (s string, err error) {
+func (r *Request) URL() (s string, err error) {
 	if r.Endpoint == "" {
 		return s, ErrNoEndpoint
 	}
@@ -628,6 +627,7 @@ func (c CachingClient) Do(req Request) error {
 		client := WriterClient{client: NewClient(), w: c.w}
 		return client.Do(req)
 	case "ListRecords", "ListIdentifiers":
+		req.useDefaults()
 		windows, err := Window{From: req.From, Until: req.Until}.Weekly()
 		if err != nil {
 			return err
