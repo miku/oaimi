@@ -3,6 +3,7 @@ package next
 
 import (
 	"bufio"
+	"compress/gzip"
 	"encoding/xml"
 	"errors"
 	"fmt"
@@ -475,41 +476,28 @@ func NewCachingClient(w io.Writer) CachingClient {
 }
 
 func (c CachingClient) makeCachePath(req Request) (string, error) {
-	p, err := makeCachePath(req)
+	ref, err := url.Parse(req.Endpoint)
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(c.CacheDir, p), nil
-}
-
-func (c CachingClient) do(req Request) error {
-	file, err := ioutil.TempFile("", "oaimi-")
-	if err != nil {
-		return err
+	if ref.Host == "" {
+		return "", ErrNoHost
 	}
-	bw := bufio.NewWriter(file)
-	client := NewWriterClient(bw)
-	if err := client.Do(req); err != nil {
-		switch err := err.(type) {
-		case OAIError:
-			if err.Code == "noRecordsMatch" {
-				log.Println("no records")
-			}
+	switch req.Verb {
+	case "ListRecords", "ListSets", "ListIdentifiers":
+		switch {
+		case req.From.IsZero() || req.Until.IsZero():
+			return "", ErrMissingFromOrUntil
 		default:
-			return err
+			name := fmt.Sprintf("%s-%s.xml.gz", req.From.Format("2006-01-02"), req.Until.Format("2006-01-02"))
+			sub := path.Join(ref.Host, ref.Path, req.Verb, req.Prefix)
+			return filepath.Join(c.CacheDir, sub, name), nil
 		}
 	}
-	if err := bw.Flush(); err != nil {
-		return err
-	}
-	if err := file.Close(); err != nil {
-		return err
-	}
-	dst, err := c.makeCachePath(req)
-	if err != nil {
-		return err
-	}
-	dir := path.Dir(dst)
+	return "", ErrCannotCreatePath
+}
+
+func ensureDir(dir string) error {
 	fi, err := os.Stat(dir)
 	if os.IsNotExist(err) {
 		if err := os.MkdirAll(dir, 0755); err != nil {
@@ -520,10 +508,73 @@ func (c CachingClient) do(req Request) error {
 			return fmt.Errorf("%s is not a directory", dir)
 		}
 	}
-	return os.Rename(file.Name(), dst)
+	return nil
+}
+
+func (c CachingClient) startDocument() error {
+	if c.RootTag != "" {
+		if _, err := c.w.Write([]byte("<" + c.RootTag + ">")); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (c CachingClient) endDocument() error {
+	if c.RootTag != "" {
+		if _, err := c.w.Write([]byte("</" + c.RootTag + ">")); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (c CachingClient) do(req Request) error {
+	file, err := ioutil.TempFile("", "oaimi-")
+	if err != nil {
+		return err
+	}
+	// move temporary file into place
+	defer func() error {
+		dst, err := c.makeCachePath(req)
+		if err != nil {
+			return err
+		}
+		dir := path.Dir(dst)
+		if err := ensureDir(dir); err != nil {
+			return err
+		}
+		return os.Rename(file.Name(), dst)
+
+	}()
+	defer file.Close()
+
+	bw := bufio.NewWriter(file)
+	defer bw.Flush()
+
+	gz := gzip.NewWriter(bw)
+	defer gz.Close()
+
+	client := NewWriterClient(gz)
+	if err := client.Do(req); err != nil {
+		switch err := err.(type) {
+		case OAIError:
+			if err.Code == "noRecordsMatch" {
+				log.Println("no records")
+			}
+		default:
+			return err
+		}
+	}
+	return nil
 }
 
 func (c CachingClient) Do(req Request) error {
+	if err := c.startDocument(); err != nil {
+		return err
+	}
+	defer c.endDocument()
+
 	switch req.Verb {
 	// do not cache these responses at all
 	case "Identify", "ListMetadataFormats", "ListSets":
@@ -556,12 +607,24 @@ func (c CachingClient) Do(req Request) error {
 					return err
 				}
 			}
-			log.Println("cached")
+			file, err := os.Open(location)
+			if err != nil {
+				return err
+			}
+			gz, err := gzip.NewReader(bufio.NewReader(file))
+			if err != nil {
+				return err
+			}
+			if _, err = io.Copy(c.w, gz); err != nil {
+				return err
+			}
+			if err := gz.Close(); err != nil {
+				return err
+			}
+			if err := file.Close(); err != nil {
+				return err
+			}
 		}
-		// 1. segment the request into smaller chunks (weekly or monthly)
-		// 2. for each chunk: if cache file exists write content to writer
-		// 3. if file does not exists, download into temporary location
-		// 4. move into final location based on makeCachePath for now
 	}
 	return nil
 }
