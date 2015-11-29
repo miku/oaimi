@@ -8,6 +8,7 @@ import (
 // RepositoryInfo returns information about a repository. Returns after at
 // most ten seconds.
 func RepositoryInfo(endpoint string) (map[string]interface{}, error) {
+	start := time.Now()
 	result := make(map[string]interface{})
 	client := NewBatchingClient()
 
@@ -45,6 +46,7 @@ func RepositoryInfo(endpoint string) (map[string]interface{}, error) {
 			}
 			received++
 			if received == 3 {
+				result["elapsed"] = time.Since(start).Seconds()
 				return result, nil
 			}
 		case <-timeout:
