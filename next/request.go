@@ -600,9 +600,7 @@ func (c CachingClient) Do(req Request) error {
 			if err != nil {
 				return err
 			}
-			log.Println(location)
 			if _, err := os.Stat(location); os.IsNotExist(err) {
-				log.Println("harvesting")
 				if err := c.do(r); err != nil {
 					return err
 				}
