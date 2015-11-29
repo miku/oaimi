@@ -39,6 +39,10 @@ var (
 	DefaultEarliestDate = time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC)
 	// DefaultFormat should be supported by most endpoints.
 	DefaultFormat = "oai_dc"
+	// DefaultCacheDir
+	DefaultCacheDir = ".oaimicache"
+	// Verbose logs actions
+	Verbose = false
 )
 
 var (
@@ -80,7 +84,7 @@ type Request struct {
 
 // useDefaults will fill in default values for From, Until and Prefix if
 // they are missing.
-func useDefaults(r Request) Request {
+func UseDefaults(r Request) Request {
 	if r.From.IsZero() {
 		c := NewClient()
 		req := Request{Verb: "Identify", Endpoint: r.Endpoint}
@@ -293,7 +297,9 @@ func (c Client) Do(req Request) (Response, error) {
 		return response, err
 	}
 
-	log.Println(link)
+	if Verbose {
+		log.Println(link)
+	}
 
 	hreq, err := http.NewRequest("GET", link, nil)
 	if err != nil {
@@ -473,7 +479,22 @@ func NewCachingClient(w io.Writer) CachingClient {
 	if err != nil {
 		panic(err)
 	}
-	return CachingClient{RootTag: "collection", CacheDir: filepath.Join(home, ".oaimicache"), w: w}
+	return NewCachingClientDir(w, filepath.Join(home, DefaultCacheDir))
+}
+
+// NewCachingClient creates a new client, with a default location for cached
+// files. All XML responses will be written to the given io.Writer.
+func NewCachingClientDir(w io.Writer, dir string) CachingClient {
+	return CachingClient{CacheDir: dir, w: w}
+}
+
+// RequestCacheDir returns the cache directory for a given request.
+func (c CachingClient) RequestCacheDir(req Request) (string, error) {
+	pth, err := c.makeCachePath(req)
+	if err != nil {
+		return "", err
+	}
+	return path.Dir(pth), nil
 }
 
 // makeCachePath assembles a destination path for the cache file for a given
@@ -567,8 +588,8 @@ func (c CachingClient) do(req Request) error {
 	if err := client.Do(req); err != nil {
 		switch err := err.(type) {
 		case OAIError:
-			if err.Code == "noRecordsMatch" {
-				log.Println("no records")
+			if err.Code != "noRecordsMatch" {
+				return err
 			}
 		default:
 			return err
@@ -608,10 +629,9 @@ func (c CachingClient) Do(req Request) error {
 
 	switch req.Verb {
 	case "Identify", "ListMetadataFormats", "ListSets":
-		wc := WriterClient{client: NewClient(), w: c.w}
-		return wc.Do(req)
+		client := WriterClient{client: NewClient(), w: c.w}
+		return client.Do(req)
 	case "ListRecords", "ListIdentifiers":
-		req := useDefaults(req)
 		windows, err := Window{From: req.From, Until: req.Until}.Weekly()
 		if err != nil {
 			return err
