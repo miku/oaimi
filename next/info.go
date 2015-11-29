@@ -36,6 +36,7 @@ func RepositoryInfo(endpoint string) (map[string]interface{}, error) {
 	}()
 
 	var received int
+	var errors []error
 	timeout := time.After(10 * time.Second)
 
 	for {
@@ -43,9 +44,14 @@ func RepositoryInfo(endpoint string) (map[string]interface{}, error) {
 		case msg := <-ch:
 			if msg.err == nil {
 				result[msg.key] = msg.value
+			} else {
+				errors = append(errors, msg.err)
 			}
 			received++
 			if received == 3 {
+				if len(errors) > 0 {
+					result["errors"] = errors
+				}
 				result["elapsed"] = time.Since(start).Seconds()
 				return result, nil
 			}

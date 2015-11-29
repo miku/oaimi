@@ -361,12 +361,12 @@ func (c *BatchingClient) Do(req Request) (resp Response, err error) {
 		for {
 			token := getResumptionToken(resp)
 			if token == "" {
-				return resp, err
+				return aggregate, err
 			}
 			req.ResumptionToken = token
 			resp, err = c.client.Do(req)
 			if err != nil {
-				return resp, err
+				return aggregate, err
 			}
 			switch req.Verb {
 			case "ListIdentifiers":
