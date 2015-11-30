@@ -39,7 +39,7 @@ func NewClientDoer(doer HttpRequestDoer) Client {
 // NewClient create a default client with resilient HTTP client.
 func NewClient() Client {
 	c := pester.New()
-	c.Timeout = 10 * time.Minute
+	c.Timeout = 5 * time.Minute
 	c.MaxRetries = 8
 	c.Backoff = pester.ExponentialBackoff
 	return Client{doer: c}
