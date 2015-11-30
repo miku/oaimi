@@ -15,12 +15,16 @@ import (
 	"github.com/miku/oaimi"
 )
 
+var Verbose bool
+
 func worker(queue, out chan string, timeout time.Duration, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for endpoint := range queue {
 		m, err := oaimi.RepositoryInfo(endpoint, timeout)
 		if err != nil {
-			log.Printf("failed %s: %s", endpoint, err)
+			if Verbose {
+				log.Printf("failed %s: %s", endpoint, err)
+			}
 			continue
 		}
 		b, err := json.Marshal(m)
@@ -28,7 +32,9 @@ func worker(queue, out chan string, timeout time.Duration, wg *sync.WaitGroup) {
 			log.Fatal(err)
 		}
 		out <- string(b)
-		log.Printf("done: %s", endpoint)
+		if Verbose {
+			log.Printf("done: %s", endpoint)
+		}
 	}
 }
 
@@ -46,6 +52,7 @@ func main() {
 
 	flag.Parse()
 
+	Verbose = *verbose
 	oaimi.Verbose = *verbose
 
 	var reader io.Reader
