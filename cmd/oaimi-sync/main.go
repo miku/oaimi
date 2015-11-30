@@ -8,17 +8,21 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 
 	"github.com/miku/oaimi"
+	"github.com/mitchellh/go-homedir"
 )
 
 var Verbose bool
+var CacheDir string
 
 func worker(queue chan string, wg *sync.WaitGroup) {
 	defer wg.Done()
 	client := oaimi.NewCachingClient(ioutil.Discard)
+	client.CacheDir = CacheDir
 	for endpoint := range queue {
 		req := oaimi.Request{Verb: "ListRecords", Endpoint: endpoint}
 		err := client.Do(req)
@@ -35,8 +39,15 @@ func worker(queue chan string, wg *sync.WaitGroup) {
 }
 
 func main() {
+
+	home, err := homedir.Dir()
+	if err != nil {
+		panic(err)
+	}
+
 	workers := flag.Int("w", 8, "requests in parallel")
 	verbose := flag.Bool("verbose", false, "be verbose")
+	cacheDir := flag.String("cache", filepath.Join(home, oaimi.DefaultCacheDir), "where to cache responses")
 	showVersion := flag.Bool("v", false, "prints current program version")
 
 	flag.Parse()
@@ -46,15 +57,16 @@ func main() {
 		os.Exit(0)
 	}
 
+	CacheDir = *cacheDir
 	Verbose = *verbose
 	oaimi.Verbose = *verbose
 
 	var reader io.Reader
-	var err error
 
 	if flag.NArg() == 0 {
 		reader = os.Stdin
 	} else {
+		var err error
 		reader, err = os.Open(flag.Arg(0))
 		if err != nil {
 			log.Fatal(err)
