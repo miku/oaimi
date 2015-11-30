@@ -1,5 +1,5 @@
 SHELL = /bin/bash
-TARGETS = oaimi
+TARGETS = oaimi oaimi-id
 
 # http://docs.travis-ci.com/user/languages/go/#Default-Test-Script
 test: deps
@@ -22,6 +22,9 @@ all: $(TARGETS)
 
 oaimi: imports deps
 	go build -o oaimi cmd/oaimi/main.go
+
+oaimi-id: imports deps
+	go build -o oaimi-id cmd/oaimi-id/main.go
 
 clean:
 	rm -f $(TARGETS)
