@@ -45,7 +45,7 @@ func main() {
 	endpoint := flag.Arg(0)
 
 	if *showRepoInfo {
-		info, err := oaimi.RepositoryInfo(endpoint)
+		info, err := oaimi.RepositoryInfo(endpoint, 10*time.Minute)
 		if err != nil {
 			log.Fatal(err)
 		}

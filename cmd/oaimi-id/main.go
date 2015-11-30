@@ -10,16 +10,17 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/miku/oaimi"
 )
 
-func worker(queue, out chan string, wg *sync.WaitGroup) {
+func worker(queue, out chan string, timeout time.Duration, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for endpoint := range queue {
-		m, err := oaimi.RepositoryInfo(endpoint)
+		m, err := oaimi.RepositoryInfo(endpoint, timeout)
 		if err != nil {
-			log.Printf("failed: %s", endpoint)
+			log.Printf("failed %s: %s", endpoint, err)
 			continue
 		}
 		b, err := json.Marshal(m)
@@ -39,6 +40,7 @@ func writer(in chan string, done chan bool) {
 }
 
 func main() {
+	timeout := flag.Duration("timeout", 10*time.Minute, "deadline for requests")
 	workers := flag.Int("w", 8, "requests in parallel")
 	verbose := flag.Bool("verbose", false, "be verbose")
 
@@ -68,7 +70,7 @@ func main() {
 
 	for i := 0; i < *workers; i++ {
 		wg.Add(1)
-		go worker(queue, out, &wg)
+		go worker(queue, out, *timeout, &wg)
 	}
 
 	rdr := bufio.NewReader(reader)

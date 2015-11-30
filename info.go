@@ -31,7 +31,7 @@ func doRequest(req Request, resp chan message, quit chan bool) {
 
 // RepositoryInfo returns information about a repository. Returns after at
 // most 30 seconds.
-func RepositoryInfo(endpoint string) (map[string]interface{}, error) {
+func RepositoryInfo(endpoint string, timeout time.Duration) (map[string]interface{}, error) {
 	start := time.Now()
 
 	resp := make(chan message)
@@ -42,10 +42,15 @@ func RepositoryInfo(endpoint string) (map[string]interface{}, error) {
 	go doRequest(Request{Endpoint: endpoint, Verb: "ListMetadataFormats"}, resp, quit)
 
 	result := make(map[string]interface{})
+	result["endpoint"] = endpoint
+	defer func() {
+		result["elapsed"] = time.Since(start).Seconds()
+	}()
+
 	var errors []error
 	var received int
 
-	timeout := time.After(300 * time.Second)
+	tout := time.After(timeout)
 
 	for {
 		select {
@@ -67,10 +72,9 @@ func RepositoryInfo(endpoint string) (map[string]interface{}, error) {
 				if len(errors) > 0 {
 					result["errors"] = errors
 				}
-				result["elapsed"] = time.Since(start).Seconds()
 				return result, nil
 			}
-		case <-timeout:
+		case <-tout:
 			for i := 0; i < 3-received; i++ {
 				quit <- true
 			}
