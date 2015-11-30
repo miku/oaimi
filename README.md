@@ -142,11 +142,6 @@ Similar projects
 * [Catmandu::OAI](https://github.com/LibreCat/Catmandu-OAI)
 * [Sickle](https://pypi.python.org/pypi/Sickle)
 
-TODO
-----
-
-* use some kind of decorator pattern: `Batch{Cached{Request}}`
-
 More sites
 ==========
 
@@ -155,3 +150,8 @@ More sites
 * http://gita.grainger.uiuc.edu/registry/ListAllAllRepos.asp?format=xml
 * https://centres.clarin.eu/oai_pmh
 * [config-others.xml](https://github.com/TheLanguageArchive/oai-harvest-manager/blob/a4ee9e72c0162a664e1b0ebd71b36b3f2f4eea71/src/main/resources/config-others.xml#L75)
+
+Format distribution
+-------------------
+
+Format distribution over 2038 repositories: https://gist.github.com/anonymous/92ec3e297963b98c0bc7.
