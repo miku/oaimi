@@ -1,5 +1,6 @@
 /oaimi
 /oaimi-id
+/oaimi-sync
 /oaimi_*.deb
 /oaimi-*.rpm
 packaging/deb/oaimi/usr
