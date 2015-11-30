@@ -17,19 +17,16 @@ import (
 func worker(queue, out chan string, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for endpoint := range queue {
-		for i := 0; i < 2; i++ {
-			m, err := oaimi.RepositoryInfo(endpoint)
-			if err != nil {
-				log.Printf("retry #%d: %s: %v", i, endpoint, err)
-				continue
-			}
-			b, err := json.Marshal(m)
-			if err != nil {
-				log.Fatal(err)
-			}
-			out <- string(b)
-			break
+		m, err := oaimi.RepositoryInfo(endpoint)
+		if err != nil {
+			log.Printf("failed: %s", endpoint)
+			continue
 		}
+		b, err := json.Marshal(m)
+		if err != nil {
+			log.Fatal(err)
+		}
+		out <- string(b)
 		log.Printf("done: %s", endpoint)
 	}
 }

@@ -2,7 +2,6 @@ package oaimi
 
 import (
 	"fmt"
-	"log"
 	"time"
 )
 
@@ -22,7 +21,6 @@ func doRequest(req Request, resp chan message, quit chan bool) {
 	for {
 		select {
 		case <-quit:
-			log.Printf("stopping: %s on %s", req.Verb, req.Endpoint)
 			break
 		case msg := <-ch:
 			resp <- msg
@@ -47,6 +45,8 @@ func RepositoryInfo(endpoint string) (map[string]interface{}, error) {
 	var errors []error
 	var received int
 
+	timeout := time.After(300 * time.Second)
+
 	for {
 		select {
 		case msg := <-resp:
@@ -70,7 +70,7 @@ func RepositoryInfo(endpoint string) (map[string]interface{}, error) {
 				result["elapsed"] = time.Since(start).Seconds()
 				return result, nil
 			}
-		case <-time.After(120 * time.Second):
+		case <-timeout:
 			for i := 0; i < 3-received; i++ {
 				quit <- true
 			}
