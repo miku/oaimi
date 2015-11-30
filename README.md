@@ -151,7 +151,10 @@ More sites
 * https://centres.clarin.eu/oai_pmh
 * [config-others.xml](https://github.com/TheLanguageArchive/oai-harvest-manager/blob/a4ee9e72c0162a664e1b0ebd71b36b3f2f4eea71/src/main/resources/config-others.xml#L75)
 
-Format distribution
--------------------
+Distributions
+-------------
 
-Format distribution over 2038 repositories: https://gist.github.com/anonymous/92ec3e297963b98c0bc7.
+On 2038 repositories.
+
+* supported [formats](https://gist.github.com/anonymous/92ec3e297963b98c0bc7)
+* [earliest](https://gist.github.com/anonymous/37e01bb984f9ce6fd3ec) date
