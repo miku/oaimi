@@ -11,10 +11,11 @@ type message struct {
 	err  error
 }
 
+var client = NewBatchingClient()
+
 func doRequest(req Request, resp chan message, quit chan bool) {
 	ch := make(chan message)
 	go func() {
-		client := NewBatchingClient()
 		r, err := client.Do(req)
 		ch <- message{req, r, err}
 	}()
