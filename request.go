@@ -16,6 +16,7 @@ var (
 	ErrCannotCreatePath   = errors.New("cannot create path")
 	ErrNoHost             = errors.New("no host")
 	ErrMissingFromOrUntil = errors.New("missing from or until")
+	ErrTooManyRequests    = errors.New("too many requests")
 
 	// UserAgent to use for requests
 	UserAgent = fmt.Sprintf("oaimi/%s (https://github.com/miku/oaimi)", Version)

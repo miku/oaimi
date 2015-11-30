@@ -84,6 +84,10 @@ func (c Client) Do(req Request) (Response, error) {
 // BatchingClient takes a single OAI request but will do more the one HTTP
 // request to fulfill it, if necessary.
 type BatchingClient struct {
+	// MaxRequests, zero means no limit. Default of 1024 will prevent endless
+	// loop due to broken resumptionToken implementations (e.g.
+	// http://goo.gl/KFb9iM).
+	MaxRequests int
 	// client is a our OAI delegate
 	client Client
 }
@@ -91,7 +95,7 @@ type BatchingClient struct {
 // NewBatchingClient returns a client that batches HTTP requests and uses a
 // resilient HTTP client.
 func NewBatchingClient() BatchingClient {
-	return BatchingClient{client: NewClient()}
+	return BatchingClient{client: NewClient(), MaxRequests: 1024}
 }
 
 // getResumptionToken returns the value of the first found resumptionToken.
@@ -119,9 +123,13 @@ func (c *BatchingClient) Do(req Request) (resp Response, err error) {
 		return resp, err
 	}
 	var aggregate = resp
+	i := 1
 	switch req.Verb {
 	case "ListIdentifiers", "ListRecords", "ListSets":
 		for {
+			if i == c.MaxRequests {
+				return aggregate, ErrTooManyRequests
+			}
 			token := getResumptionToken(resp)
 			if token == "" {
 				return aggregate, err
@@ -142,6 +150,7 @@ func (c *BatchingClient) Do(req Request) (resp Response, err error) {
 				aggregate.ListSets.Sets = append(aggregate.ListSets.Sets,
 					resp.ListSets.Sets...)
 			}
+			i++
 		}
 	}
 	return resp, err
