@@ -1,6 +1,6 @@
 Summary:    No frills OAI mirror.
 Name:       oaimi
-Version:    0.2.1
+Version:    0.2.2
 Release:    0
 License:    MIT
 BuildArch:  x86_64
@@ -23,6 +23,7 @@ No frills OAI mirror.
 mkdir -p $RPM_BUILD_ROOT/usr/local/sbin
 install -m 755 oaimi $RPM_BUILD_ROOT/usr/local/sbin
 install -m 755 oaimi-id $RPM_BUILD_ROOT/usr/local/sbin
+install -m 755 oaimi-sync $RPM_BUILD_ROOT/usr/local/sbin
 
 %post
 
@@ -36,6 +37,7 @@ rm -rf %{_topdir}/BUILD/%{name}
 
 /usr/local/sbin/oaimi
 /usr/local/sbin/oaimi-id
+/usr/local/sbin/oaimi-sync
 
 %changelog
 * Mon Sep 14 2015 Martin Czygan
