@@ -90,6 +90,7 @@ func main() {
 	}
 
 	if *dirname {
+		req.UseDefaults()
 		dir, err := client.RequestCacheDir(req)
 		if err != nil {
 			log.Fatal(err)
