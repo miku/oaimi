@@ -40,7 +40,7 @@ func writer(in chan string, done chan bool) {
 }
 
 func main() {
-	timeout := flag.Duration("timeout", 10*time.Minute, "deadline for requests")
+	timeout := flag.Duration("timeout", 30*time.Minute, "deadline for requests")
 	workers := flag.Int("w", 8, "requests in parallel")
 	verbose := flag.Bool("verbose", false, "be verbose")
 
