@@ -1,6 +1,9 @@
 package oaimi
 
-import "testing"
+import (
+	"testing"
+	"time"
+)
 
 func TestRequestURL(t *testing.T) {
 	var tests = []struct {
@@ -14,11 +17,17 @@ func TestRequestURL(t *testing.T) {
 		{Request{Endpoint: "Hello", Verb: "Identify"}, "Hello?verb=Identify", nil},
 		{Request{Endpoint: "http://example.com/oai", Verb: "Identify"}, "http://example.com/oai?verb=Identify", nil},
 		{Request{Endpoint: "http://example.com/oai",
-			Verb: "Identify", From: "123"}, "http://example.com/oai?from=123&verb=Identify", nil},
-		{Request{Endpoint: "http://example.com/oai",
-			Verb: "ListRecords", From: "123", Until: "456"}, "http://example.com/oai?from=123&until=456&verb=ListRecords", nil},
-		{Request{Endpoint: "http://example.com/oai",
-			Verb: "ListRecords", From: "123", Until: "456", ResumptionToken: "1"},
+			Verb: "Identify",
+			From: time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC),
+		}, "http://example.com/oai?verb=Identify", nil},
+		{Request{Endpoint: "http://example.com/oai", Verb: "ListRecords",
+			From:  time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC),
+			Until: time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC)},
+			"http://example.com/oai?from=2000-01-01&until=2000-01-02&verb=ListRecords", nil},
+		{Request{Endpoint: "http://example.com/oai", Verb: "ListRecords",
+			From:            time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC),
+			Until:           time.Date(2000, 1, 2, 0, 0, 0, 0, time.UTC),
+			ResumptionToken: "1"},
 			"http://example.com/oai?resumptionToken=1&verb=ListRecords", nil},
 		{Request{Endpoint: "http://example.com/oai",
 			Verb: "ListRecords", Set: "X"}, "http://example.com/oai?set=X&verb=ListRecords", nil},
@@ -50,8 +59,8 @@ func TestMakeCachePath(t *testing.T) {
 			Request{
 				Verb:     "ListRecords",
 				Endpoint: "http://www.doabooks.org/oai",
-				From:     "2000-01-01",
-				Until:    "2001-01-01",
+				From:     time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC),
+				Until:    time.Date(2001, 1, 1, 0, 0, 0, 0, time.UTC),
 				Prefix:   "marcxml"},
 			"www.doabooks.org/oai/ListRecords/marcxml/2000-01-01-2001-01-01.xml",
 			nil,

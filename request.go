@@ -116,15 +116,24 @@ func (r *Request) URL() (s string, err error) {
 		return fmt.Sprintf("%s?%s", r.Endpoint, values.Encode()), nil
 	}
 
-	maybeAdd := func(k, v string) {
-		if v != "" {
-			values.Add(k, v)
+	maybeAdd := func(k string, v interface{}) {
+		switch val := v.(type) {
+		case time.Time:
+			if !val.IsZero() {
+				values.Add(k, val.Format("2006-01-02"))
+			}
+		case string:
+			if val != "" {
+				values.Add(k, val)
+			}
+		default:
+			panic(fmt.Sprintf("maybeAdd cannot handle %T", v))
 		}
 	}
 	switch r.Verb {
 	case "ListRecords", "ListIdentifiers":
-		maybeAdd("from", r.From.Format("2006-01-02"))
-		maybeAdd("until", r.Until.Format("2006-01-02"))
+		maybeAdd("from", r.From)
+		maybeAdd("until", r.Until)
 		switch r.Verb {
 		case "ListRecords":
 			maybeAdd("set", r.Set)
