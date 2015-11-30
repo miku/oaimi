@@ -224,14 +224,15 @@ type Response struct {
 		Token resumptionToken `xml:"resumptionToken"`
 	} `xml:"ListRecords,omitempty"`
 	Identify struct {
-		Name              string `xml:"repositoryName,omitempty" json:"name"`
-		URL               string `xml:"baseURL,omitempty" json:"url"`
-		Version           string `xml:"protocolVersion,omitempty" json:"version"`
-		AdminEmail        string `xml:"adminEmail,omitempty" json:"email"`
-		EarliestDatestamp string `xml:"earliestDatestamp,omitempty" json:"earliest"`
-		DeletePolicy      string `xml:"deletedRecord,omitempty" json:"delete"`
-		Granularity       string `xml:"granularity,omitempty" json:"granularity"`
+		Name              string `xml:"repositoryName,omitempty" json:"name,omitempty"`
+		URL               string `xml:"baseURL,omitempty" json:"url,omitempty"`
+		Version           string `xml:"protocolVersion,omitempty" json:"version,omitempty"`
+		AdminEmail        string `xml:"adminEmail,omitempty" json:"email,omitempty"`
+		EarliestDatestamp string `xml:"earliestDatestamp,omitempty" json:"earliest,omitempty"`
+		DeletePolicy      string `xml:"deletedRecord,omitempty" json:"delete,omitempty"`
+		Granularity       string `xml:"granularity,omitempty" json:"granularity,omitempty"`
 		Description       struct {
+			Friends    []string `xml:"friends>baseURL,omitempty" json:"friends,omitempty"`
 			Identifier struct {
 				Scheme               string `xml:"scheme,omitempty" json:"scheme,omitempty"`
 				RepositoryIdentifier string `xml:"repositoryIdentifier,omitempty" json:"repositoryIdentifier,omitempty"`
@@ -239,7 +240,7 @@ type Response struct {
 				SampleIdentifier     string `xml:"sampleIdentifier,omitempty" json:"sampleIdentifier,omitempty"`
 			} `xml:"oai-identifier,omitempty" json:"identifier,omitempty"`
 		} `xml:"description,omitempty" json:"description,omitempty"`
-	} `xml:"Identify,omitempty"`
+	} `xml:"Identify,omitempty" json:"identity,omitempty"`
 	Error struct {
 		Code    string `xml:"code,attr"`
 		Message string `xml:",chardata"`
