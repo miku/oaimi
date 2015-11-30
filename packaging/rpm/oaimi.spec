@@ -22,6 +22,7 @@ No frills OAI mirror.
 %install
 mkdir -p $RPM_BUILD_ROOT/usr/local/sbin
 install -m 755 oaimi $RPM_BUILD_ROOT/usr/local/sbin
+install -m 755 oaimi-id $RPM_BUILD_ROOT/usr/local/sbin
 
 %post
 
@@ -34,6 +35,7 @@ rm -rf %{_topdir}/BUILD/%{name}
 %defattr(-,root,root)
 
 /usr/local/sbin/oaimi
+/usr/local/sbin/oaimi-id
 
 %changelog
 * Mon Sep 14 2015 Martin Czygan
