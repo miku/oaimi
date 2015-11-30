@@ -49,8 +49,14 @@ func main() {
 	timeout := flag.Duration("timeout", 30*time.Minute, "deadline for requests")
 	workers := flag.Int("w", 8, "requests in parallel")
 	verbose := flag.Bool("verbose", false, "be verbose")
+	showVersion := flag.Bool("v", false, "prints current program version")
 
 	flag.Parse()
+
+	if *showVersion {
+		fmt.Println(oaimi.Version)
+		os.Exit(0)
+	}
 
 	Verbose = *verbose
 	oaimi.Verbose = *verbose
