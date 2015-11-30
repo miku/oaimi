@@ -339,8 +339,8 @@ func (c CachingClient) do(req Request) error {
 		if err := ensureDir(dir); err != nil {
 			return err
 		}
+		// TODO(miku): make it work cross-device
 		return os.Rename(file.Name(), dst)
-
 	}()
 	defer file.Close()
 
