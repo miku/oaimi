@@ -134,8 +134,7 @@ How it works
 The harvesting is performed in chunks (weekly at the moment). The raw data is
 downloaded and appended to a single temporary file per source, set, prefix and
 month. Once a month has been harvested successfully, the temporary file is
-moved below a cache dir. In short: The cache dir will not contain half-
-downloaded files.
+moved below a cache dir. In short: The cache dir will not contain partial files.
 
 If you request the data for a given data source, `oaimi` will try to reuse the
 cache and only harvest not yet cached data. The output file is the
