@@ -87,38 +87,55 @@ Options:
     $ oaimi -h
     Usage of oaimi:
       -cache string
-          oaimi cache dir (default "/Users/tir/.oaimi")
+          oaimi cache dir (default "/Users/tir/.oaimicache")
       -dirname
           show shard directory for request
       -from string
           OAI from
-      -from-earliest
-          harvest from earliest timestamp
       -id
-          show repository information
+          show repository info
       -prefix string
           OAI metadataPrefix (default "oai_dc")
-      -retry int
-          retry count for exponential backoff (default 10)
       -root string
           name of artificial root element tag to use
       -set string
           OAI set
-      -timeout duration
-          request timeout (default 1m0s)
       -until string
-          OAI until (default "2015-11-02")
+          OAI until (default "2015-11-30")
       -v  prints current program version
       -verbose
           more output
 
+Experimental `oaimi-id` and `oaimi-sync` for identifying or harvesting in parallel:
+
+    $ oaimi-id -h
+    Usage of oaimi-id:
+      -timeout duration
+          deadline for requests (default 30m0s)
+      -v  prints current program version
+      -verbose
+          be verbose
+      -w int
+          requests in parallel (default 8)
+
+    $ oaimi-sync
+    Usage of oaimi-sync:
+      -cache string
+          where to cache responses (default "/Users/tir/.oaimicache")
+      -v  prints current program version
+      -verbose
+          be verbose
+      -w int
+          requests in parallel (default 8)
+
 How it works
 ------------
 
-The harvesting is performed in monthly chunks. The raw data is downloaded and
-appended to a single temporary file per source, set, prefix and month. Once a
-month has been harvested successfully, the temporary file is moved below a
-cache dir. In short: The cache dir will not contain half-downloaded files.
+The harvesting is performed in chunks (weekly at the moment). The raw data is
+downloaded and appended to a single temporary file per source, set, prefix and
+month. Once a month has been harvested successfully, the temporary file is
+moved below a cache dir. In short: The cache dir will not contain half-
+downloaded files.
 
 If you request the data for a given data source, `oaimi` will try to reuse the
 cache and only harvest not yet cached data. The output file is the
@@ -128,7 +145,7 @@ because a root element is missing. You can add a custom root element with the
 
 The value proposition of `oaimi` is that you get a single file containing the
 raw data for a specific source with a single command and that incremental
-updates are relatively cheap - at most the last 30 days need to be fetched.
+updates are relatively cheap - at most the last 7 days need to be fetched.
 
 For the moment, any further processing must happen in the client (like
 handling deletions).
