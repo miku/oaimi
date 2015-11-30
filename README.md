@@ -143,7 +143,7 @@ Similar projects
 * [Sickle](https://pypi.python.org/pypi/Sickle)
 
 More sites
-==========
+----------
 
 * http://roar.eprints.org/listfriends.xml
 * http://www.openarchives.org/pmh/registry/ListFriends
@@ -158,3 +158,8 @@ On 2038 repositories.
 
 * supported [formats](https://gist.github.com/anonymous/92ec3e297963b98c0bc7)
 * [earliest](https://gist.github.com/anonymous/37e01bb984f9ce6fd3ec) date
+
+Miscellaneous
+-------------
+
+* [1min](https://asciinema.org/a/6pkf42xpx6mpcwzupffo0iz1d?autoplay=1) of harvest
