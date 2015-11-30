@@ -52,5 +52,8 @@ sites.tsv:
 	curl "http://www.openarchives.org/pmh/registry/ListFriends" | \
 		xmlstarlet sel -t -m "/BaseURLs/baseURL/text()" -c . -n - | grep -v '^$$' > sites.tsv
 
+sites.ldj: sites.tsv
+	oaimi-id < sites.tsv > sites.ldj
+
 harvest: sites.tsv
 	while IFS='' read -r line || [[ -n "$$line" ]]; do oaimi -verbose "$$line" > /dev/null; done < sites.tsv
