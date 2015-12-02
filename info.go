@@ -6,12 +6,7 @@ import (
 	"time"
 )
 
-type message struct {
-	req  Request
-	resp Response
-	err  error
-}
-
+// RepositoryInfo holds some information about the repository.
 type RepositoryInfo struct {
 	Endpoint string              `json:"endpoint,omitempty"`
 	Elapsed  float64             `json:"elapsed,omitempty"`
@@ -21,6 +16,8 @@ type RepositoryInfo struct {
 	Errors   []error             `json:"errors,omitempty"`
 }
 
+// MarshalJSON formats the RepositoryInfo a bit terser than the default
+// serialization.
 func (ri RepositoryInfo) MarshalJSON() ([]byte, error) {
 	return json.Marshal(map[string]interface{}{
 		"endpoint": ri.Endpoint,
@@ -32,13 +29,23 @@ func (ri RepositoryInfo) MarshalJSON() ([]byte, error) {
 	})
 }
 
+// message is used to move around data from the request execution to the
+// request collection.
+type message struct {
+	request  Request
+	response Response
+	err      error
+}
+
 var client = NewBatchingClient()
 
+// doRequest executes a given OAI request and sends a message back a message.
+// The request can be cancelled through the quit channel.
 func doRequest(req Request, resp chan message, quit chan bool) {
 	ch := make(chan message)
 	go func() {
 		r, err := client.Do(req)
-		ch <- message{req, r, err}
+		ch <- message{request: req, response: r, err: err}
 	}()
 	for {
 		select {
@@ -51,8 +58,8 @@ func doRequest(req Request, resp chan message, quit chan bool) {
 	}
 }
 
-// AboutEndpoint returns information about a repository. Returns after at
-// most 30 seconds.
+// AboutEndpoint returns information about a repository. Returns after at most
+// 30 seconds.
 func AboutEndpoint(endpoint string, timeout time.Duration) (*RepositoryInfo, error) {
 	start := time.Now()
 
