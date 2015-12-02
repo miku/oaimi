@@ -197,6 +197,62 @@ type header struct {
 	Set        string `xml:"setSpec"`
 }
 
+// Identify response.
+type Identify struct {
+	Name              string `xml:"repositoryName,omitempty" json:"name,omitempty"`
+	URL               string `xml:"baseURL,omitempty" json:"url,omitempty"`
+	Version           string `xml:"protocolVersion,omitempty" json:"version,omitempty"`
+	AdminEmail        string `xml:"adminEmail,omitempty" json:"email,omitempty"`
+	EarliestDatestamp string `xml:"earliestDatestamp,omitempty" json:"earliest,omitempty"`
+	DeletePolicy      string `xml:"deletedRecord,omitempty" json:"delete,omitempty"`
+	Granularity       string `xml:"granularity,omitempty" json:"granularity,omitempty"`
+	Description       struct {
+		Friends    []string `xml:"friends>baseURL,omitempty" json:"friends,omitempty"`
+		Identifier struct {
+			Scheme               string `xml:"scheme,omitempty" json:"scheme,omitempty"`
+			RepositoryIdentifier string `xml:"repositoryIdentifier,omitempty" json:"repositoryIdentifier,omitempty"`
+			Delimiter            string `xml:"delimiter,omitempty" json:"delimiter,omitempty"`
+			SampleIdentifier     string `xml:"sampleIdentifier,omitempty" json:"sampleIdentifier,omitempty"`
+		} `xml:"oai-identifier,omitempty" json:"identifier,omitempty"`
+	} `xml:"description,omitempty" json:"description,omitempty"`
+}
+
+// ListMetadataFormats response.
+type ListMetadataFormats struct {
+	xml.Name `xml:"ListMetadataFormats" json:"formats"`
+	Formats  []struct {
+		Prefix string `xml:"metadataPrefix" json:"prefix"`
+		Schema string `xml:"schema" json:"schema"`
+	} `xml:"metadataFormat" json:"format"`
+}
+
+// ListSets response.
+type ListSets struct {
+	Sets []struct {
+		Spec        string `xml:"setSpec" json:"spec,omitempty"`
+		Name        string `xml:"setName" json:"name,omitempty"`
+		Description string `xml:"setDescription>dc>description" json:"description,omitempty"`
+	} `xml:"set" json:"set"`
+	Token resumptionToken `xml:"resumptionToken"`
+}
+
+// ListIdentifiers response.
+type ListIdentifiers struct {
+	Header []header        `xml:"header"`
+	Token  resumptionToken `xml:"resumptionToken"`
+}
+
+// ListRecords response.
+type ListRecords struct {
+	Records []struct {
+		Header   header `xml:"header"`
+		Metadata struct {
+			Verbatim string `xml:",innerxml"`
+		} `xml:"metadata"`
+	} `xml:"record"`
+	Token resumptionToken `xml:"resumptionToken"`
+}
+
 // Response can hold most answers to an request to a OAI server.
 type Response struct {
 	xml.Name `xml:"response"`
@@ -205,54 +261,13 @@ type Response struct {
 		Verb     string `xml:"verb,attr"`
 		Endpoint string `xml:",chardata"`
 	} `xml:"request,omitempty"`
-	ListIdentifiers struct {
-		Header []header        `xml:"header"`
-		Token  resumptionToken `xml:"resumptionToken"`
-	} `xml:"ListIdentifiers,omitempty"`
-	ListMetadataFormats struct {
-		xml.Name `xml:"ListMetadataFormats" json:"formats"`
-		Formats  []struct {
-			Prefix string `xml:"metadataPrefix" json:"prefix"`
-			Schema string `xml:"schema" json:"schema"`
-		} `xml:"metadataFormat" json:"format"`
-	} `xml:"ListMetadataFormats,omitempty" json:"sets"`
-	ListSets struct {
-		Sets []struct {
-			Spec        string `xml:"setSpec" json:"spec,omitempty"`
-			Name        string `xml:"setName" json:"name,omitempty"`
-			Description string `xml:"setDescription>dc>description" json:"description,omitempty"`
-		} `xml:"set" json:"set"`
-		Token resumptionToken `xml:"resumptionToken"`
-	} `xml:"ListSets,omitempty" json:"sets"`
-	ListRecords struct {
-		Records []struct {
-			Header   header `xml:"header"`
-			Metadata struct {
-				Verbatim string `xml:",innerxml"`
-			} `xml:"metadata"`
-		} `xml:"record"`
-		Token resumptionToken `xml:"resumptionToken"`
-	} `xml:"ListRecords,omitempty"`
-	Identify struct {
-		Name              string `xml:"repositoryName,omitempty" json:"name,omitempty"`
-		URL               string `xml:"baseURL,omitempty" json:"url,omitempty"`
-		Version           string `xml:"protocolVersion,omitempty" json:"version,omitempty"`
-		AdminEmail        string `xml:"adminEmail,omitempty" json:"email,omitempty"`
-		EarliestDatestamp string `xml:"earliestDatestamp,omitempty" json:"earliest,omitempty"`
-		DeletePolicy      string `xml:"deletedRecord,omitempty" json:"delete,omitempty"`
-		Granularity       string `xml:"granularity,omitempty" json:"granularity,omitempty"`
-		Description       struct {
-			Friends    []string `xml:"friends>baseURL,omitempty" json:"friends,omitempty"`
-			Identifier struct {
-				Scheme               string `xml:"scheme,omitempty" json:"scheme,omitempty"`
-				RepositoryIdentifier string `xml:"repositoryIdentifier,omitempty" json:"repositoryIdentifier,omitempty"`
-				Delimiter            string `xml:"delimiter,omitempty" json:"delimiter,omitempty"`
-				SampleIdentifier     string `xml:"sampleIdentifier,omitempty" json:"sampleIdentifier,omitempty"`
-			} `xml:"oai-identifier,omitempty" json:"identifier,omitempty"`
-		} `xml:"description,omitempty" json:"description,omitempty"`
-	} `xml:"Identify,omitempty" json:"identity,omitempty"`
 	Error struct {
 		Code    string `xml:"code,attr"`
 		Message string `xml:",chardata"`
 	} `xml:"error"`
+	ListIdentifiers     ListIdentifiers     `xml:"ListIdentifiers,omitempty"`
+	ListMetadataFormats ListMetadataFormats `xml:"ListMetadataFormats,omitempty" json:"sets"`
+	ListSets            ListSets            `xml:"ListSets,omitempty" json:"sets"`
+	ListRecords         ListRecords         `xml:"ListRecords,omitempty"`
+	Identify            Identify            `xml:"Identify,omitempty" json:"identity,omitempty"`
 }

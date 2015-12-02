@@ -20,14 +20,14 @@ var Verbose bool
 func worker(queue, out chan string, timeout time.Duration, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for endpoint := range queue {
-		m, err := oaimi.RepositoryInfo(endpoint, timeout)
+		ri, err := oaimi.AboutEndpoint(endpoint, timeout)
 		if err != nil {
 			if Verbose {
 				log.Printf("failed %s: %s", endpoint, err)
 			}
 			continue
 		}
-		b, err := json.Marshal(m)
+		b, err := json.Marshal(ri)
 		if err != nil {
 			log.Fatal(err)
 		}

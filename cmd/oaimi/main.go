@@ -45,11 +45,11 @@ func main() {
 	endpoint := flag.Arg(0)
 
 	if *showRepoInfo {
-		info, err := oaimi.RepositoryInfo(endpoint, 10*time.Minute)
+		ri, err := oaimi.AboutEndpoint(endpoint, 10*time.Minute)
 		if err != nil {
 			log.Fatal(err)
 		}
-		b, err := json.Marshal(info)
+		b, err := json.Marshal(ri)
 		if err != nil {
 			log.Fatal(err)
 		}

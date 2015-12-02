@@ -1,6 +1,7 @@
 package oaimi
 
 import (
+	"encoding/json"
 	"fmt"
 	"time"
 )
@@ -9,6 +10,26 @@ type message struct {
 	req  Request
 	resp Response
 	err  error
+}
+
+type RepositoryInfo struct {
+	Endpoint string              `json:"endpoint,omitempty"`
+	Elapsed  float64             `json:"elapsed,omitempty"`
+	About    Identify            `json:"about,omitempty"`
+	Formats  ListMetadataFormats `json:"formats,omitempty"`
+	Sets     ListSets            `json:"sets,omitempty"`
+	Errors   []error             `json:"errors,omitempty"`
+}
+
+func (ri RepositoryInfo) MarshalJSON() ([]byte, error) {
+	return json.Marshal(map[string]interface{}{
+		"endpoint": ri.Endpoint,
+		"elapsed":  ri.Elapsed,
+		"id":       ri.About,
+		"formats":  ri.Formats.Formats,
+		"sets":     ri.Sets.Sets,
+		"errors":   ri.Errors,
+	})
 }
 
 var client = NewBatchingClient()
@@ -30,9 +51,9 @@ func doRequest(req Request, resp chan message, quit chan bool) {
 	}
 }
 
-// RepositoryInfo returns information about a repository. Returns after at
+// AboutEndpoint returns information about a repository. Returns after at
 // most 30 seconds.
-func RepositoryInfo(endpoint string, timeout time.Duration) (map[string]interface{}, error) {
+func AboutEndpoint(endpoint string, timeout time.Duration) (*RepositoryInfo, error) {
 	start := time.Now()
 
 	resp := make(chan message)
@@ -42,16 +63,14 @@ func RepositoryInfo(endpoint string, timeout time.Duration) (map[string]interfac
 	go doRequest(Request{Endpoint: endpoint, Verb: "ListSets"}, resp, quit)
 	go doRequest(Request{Endpoint: endpoint, Verb: "ListMetadataFormats"}, resp, quit)
 
-	result := make(map[string]interface{})
-	result["endpoint"] = endpoint
+	info := &RepositoryInfo{Endpoint: endpoint, Errors: make([]error, 0)}
 	defer func() {
-		result["elapsed"] = time.Since(start).Seconds()
+		info.Elapsed = time.Since(start).Seconds()
 	}()
 
-	var errors []error
 	var received int
 
-	tout := time.After(timeout)
+	expired := time.After(timeout)
 
 	for {
 		select {
@@ -59,28 +78,25 @@ func RepositoryInfo(endpoint string, timeout time.Duration) (map[string]interfac
 			if msg.err == nil {
 				switch msg.req.Verb {
 				case "Identify":
-					result["id"] = msg.resp.Identify
+					info.About = msg.resp.Identify
 				case "ListSets":
-					result["sets"] = msg.resp.ListSets.Sets
+					info.Sets = msg.resp.ListSets
 				case "ListMetadataFormats":
-					result["formats"] = msg.resp.ListMetadataFormats.Formats
+					info.Formats = msg.resp.ListMetadataFormats
 				}
 			} else {
-				errors = append(errors, msg.err)
+				info.Errors = append(info.Errors, msg.err)
 			}
 			received++
 			if received == 3 {
-				if len(errors) > 0 {
-					result["errors"] = errors
-				}
-				return result, nil
+				return info, nil
 			}
-		case <-tout:
+		case <-expired:
 			for i := 0; i < 3-received; i++ {
 				quit <- true
 			}
-			return result, fmt.Errorf("timed out")
+			return info, fmt.Errorf("timed out")
 		}
 	}
-	return result, nil
+	return info, nil
 }
