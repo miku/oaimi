@@ -66,9 +66,9 @@ func AboutEndpoint(endpoint string, timeout time.Duration) (*RepositoryInfo, err
 	resp := make(chan message)
 	quit := make(chan bool)
 
-	go doRequest(Request{Endpoint: endpoint, Verb: "Identify"}, resp, quit)
-	go doRequest(Request{Endpoint: endpoint, Verb: "ListSets"}, resp, quit)
-	go doRequest(Request{Endpoint: endpoint, Verb: "ListMetadataFormats"}, resp, quit)
+	for _, verb := range []string{"Identify", "ListSets", "ListMetadataFormats"} {
+		go doRequest(Request{Endpoint: endpoint, Verb: verb}, resp, quit)
+	}
 
 	info := &RepositoryInfo{Endpoint: endpoint, Errors: make([]error, 0)}
 	defer func() {
