@@ -83,13 +83,13 @@ func AboutEndpoint(endpoint string, timeout time.Duration) (*RepositoryInfo, err
 		select {
 		case msg := <-resp:
 			if msg.err == nil {
-				switch msg.req.Verb {
+				switch msg.request.Verb {
 				case "Identify":
-					info.About = msg.resp.Identify
+					info.About = msg.response.Identify
 				case "ListSets":
-					info.Sets = msg.resp.ListSets
+					info.Sets = msg.response.ListSets
 				case "ListMetadataFormats":
-					info.Formats = msg.resp.ListMetadataFormats
+					info.Formats = msg.response.ListMetadataFormats
 				}
 			} else {
 				info.Errors = append(info.Errors, msg.err)
