@@ -82,16 +82,15 @@ func AboutEndpoint(endpoint string, timeout time.Duration) (*RepositoryInfo, err
 	for {
 		select {
 		case msg := <-resp:
-			if msg.err == nil {
-				switch msg.request.Verb {
-				case "Identify":
-					info.About = msg.response.Identify
-				case "ListSets":
-					info.Sets = msg.response.ListSets
-				case "ListMetadataFormats":
-					info.Formats = msg.response.ListMetadataFormats
-				}
-			} else {
+			switch msg.request.Verb {
+			case "Identify":
+				info.About = msg.response.Identify
+			case "ListSets":
+				info.Sets = msg.response.ListSets
+			case "ListMetadataFormats":
+				info.Formats = msg.response.ListMetadataFormats
+			}
+			if msg.err != nil {
 				info.Errors = append(info.Errors, msg.err)
 			}
 			received++
@@ -99,6 +98,7 @@ func AboutEndpoint(endpoint string, timeout time.Duration) (*RepositoryInfo, err
 				return info, nil
 			}
 		case <-expired:
+			// TODO(miku): less brittle cancellation
 			for i := 0; i < 3-received; i++ {
 				quit <- true
 			}
