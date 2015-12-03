@@ -18,24 +18,20 @@ var (
 	ErrMissingFromOrUntil = errors.New("missing from or until")
 	ErrTooManyRequests    = errors.New("too many requests")
 
+	// Verbose logs actions
+	Verbose = false
 	// UserAgent to use for requests
 	UserAgent = fmt.Sprintf("oaimi/%s (https://github.com/miku/oaimi)", Version)
-
 	// DefaultEarliestDate is used, if the repository does not supply one.
 	DefaultEarliestDate = time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC)
 	// DefaultFormat should be supported by most endpoints.
 	DefaultFormat = "oai_dc"
 	// DefaultCacheDir
 	DefaultCacheDir = ".oaimicache"
-	// Verbose logs actions
-	Verbose = false
-)
-
-var (
 	// DefaultClient should suffice for most use cases.
 	DefaultClient = NewClient()
-	// OAIVerbs (4. Protocol Requests and Responses)
-	OAIVerbs = map[string]bool{
+	// OAIVerbMap (4. Protocol Requests and Responses)
+	OAIVerbMap = map[string]bool{
 		"Identify":            true,
 		"ListIdentifiers":     true,
 		"ListSets":            true,
@@ -72,9 +68,8 @@ type Request struct {
 // they are missing.
 func (r *Request) UseDefaults() {
 	if r.From.IsZero() {
-		c := NewClient()
 		req := Request{Verb: "Identify", Endpoint: r.Endpoint}
-		resp, err := c.Do(req)
+		resp, err := DefaultClient.Do(req)
 		switch {
 		case err != nil, resp.Identify.EarliestDatestamp == "", len(resp.Identify.EarliestDatestamp) < 10:
 			r.From = DefaultEarliestDate
@@ -102,7 +97,7 @@ func (r *Request) URL() (s string, err error) {
 	if r.Verb == "" {
 		return s, ErrNoVerb
 	}
-	if _, found := OAIVerbs[r.Verb]; !found {
+	if _, found := OAIVerbMap[r.Verb]; !found {
 		return s, ErrBadVerb
 	}
 
