@@ -15,6 +15,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/miku/clam"
 	"github.com/mitchellh/go-homedir"
 	"github.com/sethgrid/pester"
 )
@@ -339,8 +340,10 @@ func (c CachingClient) do(req Request) error {
 		if err := ensureDir(dir); err != nil {
 			return err
 		}
-		// TODO(miku): make it work cross-device
-		return os.Rename(file.Name(), dst)
+		if err := os.Rename(file.Name(), dst); err != nil {
+			return clam.Run(`mv "{{ src }}" "{{ dst }}"`, clam.Map{"src": file.Name(), "dst": dst})
+		}
+		return nil
 	}()
 	defer file.Close()
 
