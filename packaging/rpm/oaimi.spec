@@ -2,7 +2,7 @@ Summary:    No frills OAI mirror.
 Name:       oaimi
 Version:    0.2.4
 Release:    0
-License:    MIT
+License:    GPL
 BuildArch:  x86_64
 BuildRoot:  %{_tmppath}/%{name}-build
 Group:      System/Base

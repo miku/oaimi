@@ -179,3 +179,10 @@ Miscellaneous
 -------------
 
 * [1min](https://asciinema.org/a/6pkf42xpx6mpcwzupffo0iz1d?autoplay=1) of harvest
+
+License
+-------
+
+* GPLv3
+* This project uses [ioutil2](https://github.com/youtube/vitess/blob/c0366e645cb76048c4b30dbeffd8dc686697eb6f/go/ioutil2/ioutil.go), Copyright 2012, Google Inc. All rights reserved.
+  Use of this source code is governed by a BSD-style license.
