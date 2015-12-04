@@ -341,7 +341,7 @@ func (c CachingClient) do(req Request) error {
 			return err
 		}
 		if err := os.Rename(file.Name(), dst); err != nil {
-			return clam.Run(`mv "{{ src }}" "{{ dst }}"`, clam.Map{"src": file.Name(), "dst": dst})
+			return clam.Run(`mv {{ src }} {{ dst }}`, clam.Map{"src": file.Name(), "dst": dst})
 		}
 		return nil
 	}()
