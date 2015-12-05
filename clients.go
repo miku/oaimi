@@ -207,6 +207,7 @@ func (c WriterClient) writeResponse(resp Response) error {
 	return err
 }
 
+// startDocument will write the root start tag, if one is defined.
 func (c WriterClient) startDocument() error {
 	if c.RootTag != "" {
 		if _, err := c.w.Write([]byte("<" + c.RootTag + ">")); err != nil {
@@ -216,6 +217,7 @@ func (c WriterClient) startDocument() error {
 	return nil
 }
 
+// endDocument will close the root tag.
 func (c WriterClient) endDocument() error {
 	if c.RootTag != "" {
 		if _, err := c.w.Write([]byte("</" + c.RootTag + ">")); err != nil {
@@ -371,11 +373,11 @@ func (c CachingClient) do(req Request) error {
 		if err != nil {
 			return err
 		}
-		dir := path.Dir(dst)
-		if err := ensureDir(dir); err != nil {
+		if err := ensureDir(path.Dir(dst)); err != nil {
 			return err
 		}
 		if err := os.Rename(file.Name(), dst); err != nil {
+			// this line forces build tags
 			return clam.Run(`mv {{ src }} {{ dst }}`, clam.Map{"src": file.Name(), "dst": dst})
 		}
 		return nil
@@ -402,7 +404,8 @@ func (c CachingClient) do(req Request) error {
 	return nil
 }
 
-// copyFile moves the file content to the writer.
+// copyFile writes the content of the given compressed file to the writer.
+// TODO(miku): sniff compression, allow empty files.
 func (c CachingClient) copyFile(filename string) error {
 	file, err := os.Open(filename)
 	if err != nil {
@@ -433,7 +436,7 @@ func (c CachingClient) Do(req Request) error {
 
 	switch req.Verb {
 	case "Identify", "ListMetadataFormats", "ListSets":
-		client := WriterClient{client: NewClient(), w: c.w}
+		client := NewWriterClient(c.w)
 		return client.Do(req)
 	case "ListRecords", "ListIdentifiers":
 		req.UseDefaults()

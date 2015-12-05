@@ -31,13 +31,14 @@ import (
 )
 
 var (
-	ErrNoEndpoint         = errors.New("request: an endpoint is required")
+	ErrNoEndpoint         = errors.New("an endpoint is required")
 	ErrNoVerb             = errors.New("no verb")
 	ErrBadVerb            = errors.New("bad verb")
 	ErrCannotCreatePath   = errors.New("cannot create path")
 	ErrNoHost             = errors.New("no host")
 	ErrMissingFromOrUntil = errors.New("missing from or until")
-	ErrTooManyRequests    = errors.New("too many requests")
+	// ErrTooManyRequests might be encountered with broken resumptiontoken implementations.
+	ErrTooManyRequests = errors.New("too many requests")
 
 	// Verbose logs actions
 	Verbose = false
@@ -85,8 +86,8 @@ type Request struct {
 	ResumptionToken string
 }
 
-// useDefaults will fill in default values for From, Until and Prefix if
-// they are missing.
+// UseDefaults will fill in default values for From, Until and Prefix if they
+// are missing.
 func (r *Request) UseDefaults() {
 	if r.From.IsZero() {
 		req := Request{Verb: "Identify", Endpoint: r.Endpoint}
