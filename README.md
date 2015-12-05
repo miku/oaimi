@@ -179,7 +179,7 @@ Over 2038 repositories.
 Miscellaneous
 -------------
 
-* [1min](https://asciinema.org/a/6pkf42xpx6mpcwzupffo0iz1d?autoplay=1) of harvest, 2min [parallelism](https://asciinema.org/a/ce9g796vdxb9dk3g1qhtx0q8v)
+* [1min](https://asciinema.org/a/6pkf42xpx6mpcwzupffo0iz1d?autoplay=1) of harvest, 2min [parallelism](https://asciinema.org/a/ce9g796vdxb9dk3g1qhtx0q8v?autoplay=1)
 
 License
 -------
