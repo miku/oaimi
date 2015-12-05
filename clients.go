@@ -42,7 +42,8 @@ import (
 	"github.com/sethgrid/pester"
 )
 
-// HttpRequestDoer let's us use pester, DefaultClient or others interchangably.
+// HttpRequestDoer lets us use pester, DefaultClient or other HTTP client
+// implementations interchangably.
 type HttpRequestDoer interface {
 	Do(*http.Request) (*http.Response, error)
 }
@@ -181,13 +182,20 @@ func (c *BatchingClient) Do(req Request) (resp Response, err error) {
 
 // WriterClient can execute requests, but writes results to a given writer.
 type WriterClient struct {
+	// RootTag is used as synthetic root element.
 	RootTag string
-	client  Client
-	w       io.Writer
+	// MaxRequests, zero means no limit. Default of 4096 will prevent endless
+	// loop due to broken resumptionToken implementations (e.g.
+	// http://goo.gl/KFb9iM). Zero means no limit.
+	MaxRequests int
+	// client is a actual client used for executing the requests.
+	client Client
+	// w is where the XML gets written.
+	w io.Writer
 }
 
 func NewWriterClient(w io.Writer) WriterClient {
-	return WriterClient{client: NewClient(), w: w}
+	return WriterClient{client: NewClient(), w: w, MaxRequests: 4096}
 }
 
 func (c WriterClient) writeResponse(resp Response) error {
@@ -232,9 +240,13 @@ func (c WriterClient) Do(req Request) error {
 	if err := c.writeResponse(resp); err != nil {
 		return err
 	}
+	i := 1
 	switch req.Verb {
 	case "ListIdentifiers", "ListRecords", "ListSets":
 		for {
+			if i == c.MaxRequests {
+				return ErrTooManyRequests
+			}
 			token := getResumptionToken(resp)
 			if token == "" {
 				return nil
@@ -247,6 +259,7 @@ func (c WriterClient) Do(req Request) error {
 			if err := c.writeResponse(resp); err != nil {
 				return err
 			}
+			i++
 		}
 	}
 	return nil
