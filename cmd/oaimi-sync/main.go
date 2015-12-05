@@ -19,21 +19,26 @@ import (
 var Verbose bool
 var CacheDir string
 
-func worker(queue chan string, wg *sync.WaitGroup) {
+type work struct {
+	endpoint string
+	format   string
+}
+
+func worker(queue chan work, wg *sync.WaitGroup) {
 	defer wg.Done()
 	client := oaimi.NewCachingClient(ioutil.Discard)
 	client.CacheDir = CacheDir
-	for endpoint := range queue {
-		req := oaimi.Request{Verb: "ListRecords", Endpoint: endpoint}
+	for w := range queue {
+		req := oaimi.Request{Verb: "ListRecords", Endpoint: w.endpoint, Prefix: w.format}
 		err := client.Do(req)
 		if err != nil {
 			if Verbose {
-				log.Printf("failed %s: %s", endpoint, err)
+				log.Printf("failed %s: %s", w.endpoint, err)
 			}
 			continue
 		}
 		if Verbose {
-			log.Printf("done: %s", endpoint)
+			log.Printf("done: %s", w.endpoint)
 		}
 	}
 }
@@ -73,7 +78,7 @@ func main() {
 		}
 	}
 
-	queue := make(chan string)
+	queue := make(chan work)
 	var wg sync.WaitGroup
 
 	for i := 0; i < *workers; i++ {
@@ -90,11 +95,18 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		endpoint := strings.TrimSpace(line)
-		if endpoint == "" {
+		if strings.TrimSpace(line) == "" {
 			continue
 		}
-		queue <- endpoint
+		fields := strings.Fields(line)
+		switch len(fields) {
+		default:
+			continue
+		case 1:
+			queue <- work{endpoint: fields[0], format: "oai_dc"}
+		case 2:
+			queue <- work{endpoint: fields[0], format: fields[1]}
+		}
 	}
 
 	close(queue)
