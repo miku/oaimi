@@ -49,7 +49,7 @@ rpm: $(TARGETS)
 	cp $(HOME)/rpmbuild/RPMS/x86_64/oaimi*.rpm .
 
 cloc:
-	cloc --max-file-size 1 --exclude-dir tmp --exclude-dir fixtures .
+	cloc --max-file-size 1 --exclude-ext tsv,ldj --exclude-dir tmp --exclude-dir fixtures .
 
 sites.tsv:
 	curl "http://www.openarchives.org/pmh/registry/ListFriends" | \
