@@ -79,8 +79,8 @@ func doRequest(req Request, resp chan message, quit chan bool) {
 	}
 }
 
-// AboutEndpoint returns information about a repository. Returns after at most
-// 30 seconds.
+// AboutEndpoint returns information about a repository. Execution time
+// limited by timeout.
 func AboutEndpoint(endpoint string, timeout time.Duration) (*RepositoryInfo, error) {
 	start := time.Now()
 
