@@ -99,13 +99,18 @@ func main() {
 			continue
 		}
 		fields := strings.Fields(line)
-		switch len(fields) {
+		switch {
+		case len(fields) > 0:
+			if strings.HasPrefix(fields[0], "http") {
+				fields[0] = "http://" + fields[0]
+			}
+			fallthrough
+		case len(fields) == 1:
+			queue <- work{endpoint: fields[0], format: "oai_dc"}
+		case len(fields) > 1:
+			queue <- work{endpoint: fields[0], format: fields[1]}
 		default:
 			continue
-		case 1:
-			queue <- work{endpoint: fields[0], format: "oai_dc"}
-		case 2:
-			queue <- work{endpoint: fields[0], format: fields[1]}
 		}
 	}
 

@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/miku/oaimi"
@@ -43,6 +44,9 @@ func main() {
 	}
 
 	endpoint := flag.Arg(0)
+	if !strings.HasPrefix(endpoint, "http") {
+		endpoint = "http://" + endpoint
+	}
 
 	if *showRepoInfo {
 		ri, err := oaimi.AboutEndpoint(endpoint, 10*time.Minute)

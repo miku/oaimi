@@ -24,6 +24,7 @@ package oaimi
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -83,6 +84,10 @@ func doRequest(req Request, resp chan message, quit chan bool) {
 // limited by timeout.
 func AboutEndpoint(endpoint string, timeout time.Duration) (*RepositoryInfo, error) {
 	start := time.Now()
+
+	if !strings.HasPrefix(endpoint, "http") {
+		endpoint = "http://" + endpoint
+	}
 
 	resp := make(chan message)
 	quit := make(chan bool)
