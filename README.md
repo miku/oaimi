@@ -85,14 +85,14 @@ To remove all cached files:
 Play well with others:
 
     $ oaimi http://acceda.ulpgc.es/oai/request | \
-	  xmlcutty -path /Response/ListRecords/record/metadata -root collection | \
-	  xmllint --format -
+        xmlcutty -path /Response/ListRecords/record/metadata -root collection | \
+        xmllint --format -
 
     <?xml version="1.0"?>
     <collection>
       <metadata>
-	<oai_dc:dc xmlns:oai_dc="ht...... dc.xsd">
-	  <dc:title>Elementos m&#xED;ticos y paralelos estructurales en la ...</dc:title>
+        <oai_dc:dc xmlns:oai_dc="ht...... dc.xsd">
+          <dc:title>Elementos m&#xED;ticos y paralelos estructurales en la ...</dc:title>
     ...
 
 Options:
