@@ -101,7 +101,7 @@ func main() {
 		fields := strings.Fields(line)
 		switch {
 		case len(fields) > 0:
-			if strings.HasPrefix(fields[0], "http") {
+			if !strings.HasPrefix(fields[0], "http") {
 				fields[0] = "http://" + fields[0]
 			}
 			fallthrough
