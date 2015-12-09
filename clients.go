@@ -387,12 +387,8 @@ func (c CachingClient) retrieve(req Request) (fn string, err error) {
 // is retrieved and persisted. Requests are internally split up into weekly
 // windows to reduce load and to latency in case of errors.
 func (c CachingClient) Do(req Request) error {
-	if err := c.startDocument(); err != nil {
-		return err
-	}
-	defer func() error {
-		return c.endDocument()
-	}()
+	c.startDocument()
+	defer c.endDocument()
 
 	switch req.Verb {
 	case "Identify", "ListMetadataFormats", "ListSets":
