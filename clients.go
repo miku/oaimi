@@ -23,12 +23,9 @@
 package oaimi
 
 import (
-	"bufio"
-	"compress/gzip"
 	"encoding/xml"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -37,7 +34,6 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/miku/clam"
 	"github.com/mitchellh/go-homedir"
 	"github.com/sethgrid/pester"
 )
@@ -360,69 +356,6 @@ func (c CachingClient) endDocument() error {
 	return nil
 }
 
-// do executes a oai request and will create a compressed file under the
-// client's CacheDir.
-func (c CachingClient) do(req Request) error {
-	file, err := ioutil.TempFile("", "oaimi-")
-	if err != nil {
-		return err
-	}
-	// move temporary file into place
-	defer func() error {
-		dst, err := c.makeCachePath(req)
-		if err != nil {
-			return err
-		}
-		if err := ensureDir(path.Dir(dst)); err != nil {
-			return err
-		}
-		if err := os.Rename(file.Name(), dst); err != nil {
-			// this line forces build tags
-			return clam.Run(`mv {{ src }} {{ dst }}`, clam.Map{"src": file.Name(), "dst": dst})
-		}
-		return nil
-	}()
-	defer file.Close()
-
-	bw := bufio.NewWriter(file)
-	defer bw.Flush()
-
-	gz := gzip.NewWriter(bw)
-	defer gz.Close()
-
-	client := NewWriterClient(gz)
-	if err := client.Do(req); err != nil {
-		switch err := err.(type) {
-		case OAIError:
-			if err.Code != "noRecordsMatch" {
-				return err
-			}
-		default:
-			return err
-		}
-	}
-	return nil
-}
-
-// copyFile writes the content of the given compressed file to the writer.
-// TODO(miku): sniff compression, allow empty files.
-func (c CachingClient) copyFile(filename string) error {
-	file, err := os.Open(filename)
-	if err != nil {
-		return err
-	}
-	defer func() error { return file.Close() }()
-
-	gz, err := gzip.NewReader(bufio.NewReader(file))
-	if err != nil {
-		return err
-	}
-	defer func() error { return gz.Close() }()
-
-	_, err = io.Copy(c.w, gz)
-	return err
-}
-
 // Do executes a given request. If the request is not yet cached, the content
 // is retrieved and persisted. Requests are internally split up into weekly
 // windows to reduce load and to latency in case of errors.
@@ -457,14 +390,34 @@ func (c CachingClient) Do(req Request) error {
 			if err != nil {
 				return err
 			}
+
+			// retrieve records if we don't already have
 			if _, err := os.Stat(filename); os.IsNotExist(err) {
-				if err := c.do(r); err != nil {
+				file := CreateMaybeCompressedFile(filename)
+				client := NewWriterClient(file)
+				if err := client.Do(req); err != nil {
+					switch err := err.(type) {
+					case OAIError:
+						if err.Code != "noRecordsMatch" {
+							return err
+						}
+					default:
+						return err
+					}
+				}
+				if err := file.Close(); err != nil {
 					return err
 				}
 			}
-			if err := c.copyFile(filename); err != nil {
+
+			file, err := OpenMaybeCompressedFile(filename)
+			if err != nil {
 				return err
 			}
+			if _, err = io.Copy(c.w, file); err != nil {
+				return err
+			}
+			file.Close()
 		}
 	}
 	return nil
