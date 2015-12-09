@@ -46,6 +46,8 @@ var (
 	UserAgent = fmt.Sprintf("oaimi/%s (https://github.com/miku/oaimi)", Version)
 	// DefaultEarliestDate is used, if the repository does not supply one.
 	DefaultEarliestDate = time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC)
+	// CutoffDate is used, if the repository reports some earliest date, but which looks unrealistic like year 0007.
+	CutoffDate = time.Date(1458, 1, 1, 0, 0, 0, 0, time.UTC)
 	// DefaultFormat should be supported by most endpoints.
 	DefaultFormat = "oai_dc"
 	// DefaultCacheDir
@@ -97,7 +99,7 @@ func (r *Request) UseDefaults() {
 			r.From = DefaultEarliestDate
 		default:
 			r.From, err = time.Parse("2006-01-02", resp.Identify.EarliestDatestamp[:10])
-			if err != nil {
+			if err != nil || r.From.Before(CutoffDate) {
 				r.From = DefaultEarliestDate
 			}
 		}
