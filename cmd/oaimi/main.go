@@ -15,10 +15,10 @@ import (
 )
 
 func main() {
-
+	var err error
 	home, err := homedir.Dir()
 	if err != nil {
-		panic(err)
+		home = "."
 	}
 
 	cacheDir := flag.String("cache", filepath.Join(home, oaimi.DefaultCacheDir), "oaimi cache dir")
@@ -46,6 +46,10 @@ func main() {
 	endpoint := flag.Arg(0)
 	if !strings.HasPrefix(endpoint, "http") {
 		endpoint = "http://" + endpoint
+	}
+
+	if *cacheDir == "" {
+		log.Fatal("cache dir must be set")
 	}
 
 	if *showRepoInfo {
@@ -80,14 +84,12 @@ func main() {
 	}
 
 	if *from != "" {
-		var err error
 		if req.From, err = time.Parse("2006-01-02", *from); err != nil {
 			log.Fatal(err)
 		}
 	}
 
 	if *until != "" {
-		var err error
 		if req.Until, err = time.Parse("2006-01-02", *until); err != nil {
 			log.Fatal(err)
 		}

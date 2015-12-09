@@ -102,7 +102,6 @@ func AboutEndpoint(endpoint string, timeout time.Duration) (*RepositoryInfo, err
 	}()
 
 	var received int
-
 	expired := time.After(timeout)
 
 	for {
