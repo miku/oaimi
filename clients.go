@@ -290,16 +290,16 @@ func NewCachingClientDir(w io.Writer, dir string) CachingClient {
 
 // RequestCacheDir returns the cache directory for a given request.
 func (c CachingClient) RequestCacheDir(req Request) (string, error) {
-	pth, err := c.makeCachePath(req)
+	pth, err := c.getCachePath(req)
 	if err != nil {
 		return "", err
 	}
 	return path.Dir(pth), nil
 }
 
-// makeCachePath assembles a destination path for the cache file for a given
+// getCachePath assembles a destination path for the cache file for a given
 // request. This method does not create any file or directory.
-func (c CachingClient) makeCachePath(req Request) (string, error) {
+func (c CachingClient) getCachePath(req Request) (string, error) {
 	ref, err := url.Parse(req.Endpoint)
 	if err != nil {
 		return "", err
@@ -335,20 +335,22 @@ func ensureDir(dir string) error {
 
 // startDocument inserts a root tag, if given.
 func (c CachingClient) startDocument() error {
-	if c.RootTag != "" {
-		if _, err := c.w.Write([]byte("<" + c.RootTag + ">")); err != nil {
-			return err
-		}
+	if c.RootTag == "" {
+		return nil
+	}
+	if _, err := c.w.Write([]byte("<" + c.RootTag + ">")); err != nil {
+		return err
 	}
 	return nil
 }
 
 // endDocument closes the root tag.
 func (c CachingClient) endDocument() error {
-	if c.RootTag != "" {
-		if _, err := c.w.Write([]byte("</" + c.RootTag + ">")); err != nil {
-			return err
-		}
+	if c.RootTag == "" {
+		return nil
+	}
+	if _, err := c.w.Write([]byte("</" + c.RootTag + ">")); err != nil {
+		return err
 	}
 	return nil
 }
@@ -356,7 +358,7 @@ func (c CachingClient) endDocument() error {
 // retrieve retrieves and stores the response for a given request. Returns the
 // cache filename and any error.
 func (c CachingClient) retrieve(req Request) (fn string, err error) {
-	fn, err = c.makeCachePath(req)
+	fn, err = c.getCachePath(req)
 	if err != nil {
 		return fn, err
 	}
