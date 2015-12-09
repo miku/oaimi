@@ -325,13 +325,10 @@ func (c CachingClient) makeCachePath(req Request) (string, error) {
 func ensureDir(dir string) error {
 	fi, err := os.Stat(dir)
 	if os.IsNotExist(err) {
-		if err := os.MkdirAll(dir, 0755); err != nil {
-			return err
-		}
-	} else {
-		if !fi.IsDir() {
-			return fmt.Errorf("%s is not a directory", dir)
-		}
+		return os.MkdirAll(dir, 0755)
+	}
+	if !fi.IsDir() {
+		return fmt.Errorf("%s is not a directory", dir)
 	}
 	return nil
 }
