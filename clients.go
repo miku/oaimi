@@ -355,9 +355,9 @@ func (c CachingClient) endDocument() error {
 	return nil
 }
 
-// retrieve retrieves and stores the response for a given request. Returns the
-// cache filename and any error.
-func (c CachingClient) retrieve(req Request) (fn string, err error) {
+// maybeRetrieve retrieves and stores the response for a given request, if it
+// is not already cached. Returns the cache filename and any error.
+func (c CachingClient) maybeRetrieve(req Request) (fn string, err error) {
 	fn, err = c.getCachePath(req)
 	if err != nil {
 		return fn, err
@@ -407,7 +407,7 @@ func (c CachingClient) Do(req Request) error {
 				Until:    w.Until,
 			}
 
-			filename, err := c.retrieve(r)
+			filename, err := c.maybeRetrieve(r)
 			if err != nil {
 				return err
 			}
