@@ -8,9 +8,8 @@ import (
 
 func TestWindowMonthly(t *testing.T) {
 	var tests = []struct {
-		w   Window
-		ws  []Window
-		err error
+		w  Window
+		ws []Window
 	}{
 		{
 			w: Window{From: time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC), Until: time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)},
@@ -20,7 +19,6 @@ func TestWindowMonthly(t *testing.T) {
 					Until: time.Date(2000, 1, 1, 23, 59, 59, 999999999, time.UTC),
 				},
 			},
-			err: nil,
 		},
 		{
 			w: Window{From: time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC), Until: time.Date(2000, 5, 1, 0, 0, 0, 0, time.UTC)},
@@ -46,7 +44,6 @@ func TestWindowMonthly(t *testing.T) {
 					Until: time.Date(2000, 5, 1, 23, 59, 59, 999999999, time.UTC),
 				},
 			},
-			err: nil,
 		},
 		{
 			w: Window{From: time.Date(2001, 12, 11, 9, 0, 0, 0, time.UTC), Until: time.Date(2002, 1, 16, 12, 0, 0, 0, time.UTC)},
@@ -60,15 +57,11 @@ func TestWindowMonthly(t *testing.T) {
 					Until: time.Date(2002, 1, 16, 23, 59, 59, 999999999, time.UTC),
 				},
 			},
-			err: nil,
 		},
 	}
 
 	for _, test := range tests {
-		result, err := test.w.Monthly()
-		if err != test.err {
-			t.Errorf("Monthly() got %v, want %v", err, test.err)
-		}
+		result := test.w.Monthly()
 		if !reflect.DeepEqual(result, test.ws) {
 			t.Errorf("Monthly() got %v, want %v", result, test.ws)
 		}
@@ -77,9 +70,8 @@ func TestWindowMonthly(t *testing.T) {
 
 func TestWindowWeekly(t *testing.T) {
 	var tests = []struct {
-		w   Window
-		ws  []Window
-		err error
+		w  Window
+		ws []Window
 	}{
 		{
 			w: Window{From: time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC), Until: time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)},
@@ -89,7 +81,6 @@ func TestWindowWeekly(t *testing.T) {
 					Until: time.Date(2000, 1, 1, 23, 59, 59, 999999999, time.UTC),
 				},
 			},
-			err: nil,
 		},
 		{
 			w: Window{From: time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC), Until: time.Date(2000, 2, 1, 0, 0, 0, 0, time.UTC)},
@@ -119,15 +110,11 @@ func TestWindowWeekly(t *testing.T) {
 					Until: time.Date(2000, 2, 1, 23, 59, 59, 999999999, time.UTC),
 				},
 			},
-			err: nil,
 		},
 	}
 
 	for _, test := range tests {
-		result, err := test.w.Weekly()
-		if err != test.err {
-			t.Errorf("Weekly() got %v, want %v", err, test.err)
-		}
+		result := test.w.Weekly()
 		if !reflect.DeepEqual(result, test.ws) {
 			t.Errorf("Weekly() got %v, want %v", result, test.ws)
 		}

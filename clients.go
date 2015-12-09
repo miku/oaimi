@@ -353,6 +353,34 @@ func (c CachingClient) endDocument() error {
 	return nil
 }
 
+// retrieve retrieves and stores the response for a given request. Returns the
+// cache filename and any error.
+func (c CachingClient) retrieve(req Request) (fn string, err error) {
+	fn, err = c.makeCachePath(req)
+	if err != nil {
+		return fn, err
+	}
+	// retrieve records if we don't already have
+	if _, err := os.Stat(fn); os.IsNotExist(err) {
+		file := CreateMaybeCompressedFile(fn)
+		client := NewWriterClient(file)
+		if err := client.Do(req); err != nil {
+			switch err := err.(type) {
+			case OAIError:
+				if err.Code != "noRecordsMatch" {
+					return fn, err
+				}
+			default:
+				return fn, err
+			}
+		}
+		if err := file.Close(); err != nil {
+			return fn, err
+		}
+	}
+	return fn, nil
+}
+
 // Do executes a given request. If the request is not yet cached, the content
 // is retrieved and persisted. Requests are internally split up into weekly
 // windows to reduce load and to latency in case of errors.
@@ -370,10 +398,7 @@ func (c CachingClient) Do(req Request) error {
 		return client.Do(req)
 	case "ListRecords", "ListIdentifiers":
 		req.UseDefaults()
-		windows, err := Window{From: req.From, Until: req.Until}.Weekly()
-		if err != nil {
-			return err
-		}
+		windows := Window{From: req.From, Until: req.Until}.Weekly()
 		for _, w := range windows {
 			r := Request{
 				Endpoint: req.Endpoint,
@@ -383,30 +408,11 @@ func (c CachingClient) Do(req Request) error {
 				From:     w.From,
 				Until:    w.Until,
 			}
-			filename, err := c.makeCachePath(r)
+
+			filename, err := c.retrieve(r)
 			if err != nil {
 				return err
 			}
-
-			// retrieve records if we don't already have
-			if _, err := os.Stat(filename); os.IsNotExist(err) {
-				file := CreateMaybeCompressedFile(filename)
-				client := NewWriterClient(file)
-				if err := client.Do(req); err != nil {
-					switch err := err.(type) {
-					case OAIError:
-						if err.Code != "noRecordsMatch" {
-							return err
-						}
-					default:
-						return err
-					}
-				}
-				if err := file.Close(); err != nil {
-					return err
-				}
-			}
-
 			file, err := OpenMaybeCompressedFile(filename)
 			if err != nil {
 				return err
@@ -414,7 +420,9 @@ func (c CachingClient) Do(req Request) error {
 			if _, err = io.Copy(c.w, file); err != nil {
 				return err
 			}
-			file.Close()
+			if err := file.Close(); err != nil {
+				return err
+			}
 		}
 	}
 	return nil

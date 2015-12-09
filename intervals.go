@@ -22,15 +22,12 @@
 package oaimi
 
 import (
-	"errors"
 	"time"
 
 	"github.com/jinzhu/now"
 )
 
 const oneDay = 24 * time.Hour
-
-var ErrInvalidDateRange = errors.New("invalid date range")
 
 // Window represent a span of time, from and until including.
 type Window struct {
@@ -40,10 +37,10 @@ type Window struct {
 
 type TimeShiftFunc func(time.Time) time.Time
 
-func (w Window) makeWindows(left, right TimeShiftFunc) ([]Window, error) {
+func (w Window) makeWindows(left, right TimeShiftFunc) []Window {
 	var ws []Window
 	if w.From.After(w.Until) {
-		return ws, ErrInvalidDateRange
+		return ws
 	}
 	var start, end time.Time
 	from := w.From
@@ -63,10 +60,10 @@ func (w Window) makeWindows(left, right TimeShiftFunc) ([]Window, error) {
 		ws = append(ws, Window{From: start, Until: end})
 		from = end.Add(oneDay)
 	}
-	return ws, nil
+	return ws
 }
 
-func (w Window) Monthly() ([]Window, error) {
+func (w Window) Monthly() []Window {
 	shiftLeft := func(t time.Time) time.Time {
 		return now.New(t).BeginningOfMonth()
 	}
@@ -76,7 +73,7 @@ func (w Window) Monthly() ([]Window, error) {
 	return w.makeWindows(shiftLeft, shiftRight)
 }
 
-func (w Window) Weekly() ([]Window, error) {
+func (w Window) Weekly() []Window {
 	shiftLeft := func(t time.Time) time.Time {
 		return now.New(t).BeginningOfWeek()
 	}
