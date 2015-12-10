@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"compress/gzip"
 	"errors"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
@@ -85,6 +86,18 @@ func (f *MaybeCompressedFile) Close() error {
 	return nil
 }
 
+// mkdirAll ensures a path exists and is a directory.
+func mkdirAll(dir string) error {
+	fi, err := os.Stat(dir)
+	if os.IsNotExist(err) {
+		return os.MkdirAll(dir, 0755)
+	}
+	if !fi.IsDir() {
+		return fmt.Errorf("%s is not a directory", dir)
+	}
+	return nil
+}
+
 // compresswriter optionally compresses everything that is written to it.
 type compresswriter struct {
 	filename string
@@ -141,6 +154,9 @@ func (w *compresswriter) Close() error {
 	if w.written < CompressThreshold {
 		b, err := ioutil.ReadAll(w.tempfile)
 		if err != nil {
+			return err
+		}
+		if err := mkdirAll(path.Dir(w.filename)); err != nil {
 			return err
 		}
 		if err := WriteFileAtomic(w.filename, b, 0644); err != nil {

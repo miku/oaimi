@@ -321,18 +321,6 @@ func (c CachingClient) getCachePath(req Request) (string, error) {
 	return "", ErrCannotCreatePath
 }
 
-// ensureDir ensures a path exists and is a directory.
-func ensureDir(dir string) error {
-	fi, err := os.Stat(dir)
-	if os.IsNotExist(err) {
-		return os.MkdirAll(dir, 0755)
-	}
-	if !fi.IsDir() {
-		return fmt.Errorf("%s is not a directory", dir)
-	}
-	return nil
-}
-
 // startDocument inserts a root tag, if given.
 func (c CachingClient) startDocument() error {
 	if c.RootTag == "" {
