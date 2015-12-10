@@ -292,7 +292,9 @@ func NewCachingClient(w io.Writer) CachingClient {
 // files. All XML responses will be written to the given io.Writer.
 func NewCachingClientDir(w io.Writer, dir string) CachingClient {
 	defaultns := map[string]string{
-		"xsi": "http://www.w3.org/2001/XMLSchema-instance",
+		"xsi":    "http://www.w3.org/2001/XMLSchema-instance",
+		"dc":     "http://purl.org/dc/elements/1.1/",
+		"oai_dc": "http://www.openarchives.org/OAI/2.0/oai_dc/",
 	}
 	return CachingClient{CacheDir: dir, w: w, NameSpaces: defaultns}
 }
