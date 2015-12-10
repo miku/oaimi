@@ -32,6 +32,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/mitchellh/go-homedir"
@@ -267,9 +268,14 @@ func (c WriterClient) Do(req Request) error {
 // cache logic which helps to make subsequent requests fast. A root element is
 // optional.
 type CachingClient struct {
-	RootTag  string
+	// RootTag is an optional root element.
+	RootTag string
+	// NameSpaces allow to add custom XML namespace declarations to the root element.
+	NameSpaces map[string]string
+	// CacheDir stores the directory, where all the downloads go.
 	CacheDir string
-	w        io.Writer
+	// w is the target writer, where all content is written.
+	w io.Writer
 }
 
 // NewCachingClient creates a new client, with a default location for cached
@@ -285,7 +291,10 @@ func NewCachingClient(w io.Writer) CachingClient {
 // NewCachingClient creates a new client, with a default location for cached
 // files. All XML responses will be written to the given io.Writer.
 func NewCachingClientDir(w io.Writer, dir string) CachingClient {
-	return CachingClient{CacheDir: dir, w: w}
+	defaultns := map[string]string{
+		"xsi": "http://www.w3.org/2001/XMLSchema-instance",
+	}
+	return CachingClient{CacheDir: dir, w: w, NameSpaces: defaultns}
 }
 
 // RequestCacheDir returns the cache directory for a given request.
@@ -326,7 +335,13 @@ func (c CachingClient) startDocument() error {
 	if c.RootTag == "" {
 		return nil
 	}
-	if _, err := c.w.Write([]byte("<" + c.RootTag + ">")); err != nil {
+	var nslist []string
+	for k, v := range c.NameSpaces {
+		nslist = append(nslist, fmt.Sprintf(`xmlns:%s="%s"`, k, v))
+	}
+	namespaces := strings.Join(nslist, " ")
+	tag := fmt.Sprintf("<%s %s>", c.RootTag, namespaces)
+	if _, err := c.w.Write([]byte(tag)); err != nil {
 		return err
 	}
 	return nil
