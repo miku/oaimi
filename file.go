@@ -93,20 +93,33 @@ type compresswriter struct {
 	written  int
 }
 
+// init initializes internal fields
+func (w *compresswriter) init() error {
+	tf, err := ioutil.TempFile("", "compresswriter-")
+	if err != nil {
+		return err
+	}
+	w.tempfile = tf
+	w.bw = bufio.NewWriter(tf)
+	return nil
+}
+
 func (w *compresswriter) Write(p []byte) (n int, err error) {
 	if w.tempfile == nil {
-		tf, err := ioutil.TempFile("", "compresswriter-")
-		if err != nil {
+		if err := w.init(); err != nil {
 			return 0, err
 		}
-		w.tempfile = tf
-		w.bw = bufio.NewWriter(tf)
 	}
 	w.written += len(p)
 	return w.bw.Write(p)
 }
 
 func (w *compresswriter) Close() error {
+	if w.tempfile == nil {
+		if err := w.init(); err != nil {
+			return err
+		}
+	}
 	if err := w.bw.Flush(); err != nil {
 		return err
 	}
