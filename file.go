@@ -41,7 +41,7 @@ func OpenMaybeCompressedFile(filename string) (*MaybeCompressedFile, error) {
 	switch err {
 	case nil:
 		reader = gz
-	case gzip.ErrHeader, io.ErrUnexpectedEOF:
+	case gzip.ErrHeader, io.ErrUnexpectedEOF, io.EOF:
 		if _, err := file.Seek(0, os.SEEK_SET); err != nil {
 			return nil, err
 		}
