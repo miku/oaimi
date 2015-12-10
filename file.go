@@ -151,12 +151,13 @@ func (w *compresswriter) Close() error {
 		return nil
 	}()
 
+	if err := mkdirAll(path.Dir(w.filename)); err != nil {
+		return err
+	}
+
 	if w.written < CompressThreshold {
 		b, err := ioutil.ReadAll(w.tempfile)
 		if err != nil {
-			return err
-		}
-		if err := mkdirAll(path.Dir(w.filename)); err != nil {
 			return err
 		}
 		if err := WriteFileAtomic(w.filename, b, 0644); err != nil {
