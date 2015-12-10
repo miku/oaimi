@@ -165,7 +165,7 @@ func (w *compresswriter) Close() error {
 		}
 	} else {
 		dir, name := path.Split(w.filename)
-		file, err := ioutil.TempFile(dir, name + "-")
+		file, err := ioutil.TempFile(dir, name+"-")
 		if err != nil {
 			return err
 		}
