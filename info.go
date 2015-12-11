@@ -63,6 +63,7 @@ var client = NewBatchingClient()
 
 // doRequest executes a given OAI request and sends a message back a message.
 // The request can be cancelled through the quit channel.
+// TODO(miku): use https://blog.golang.org/context
 func doRequest(req Request, resp chan message, quit chan bool) {
 	ch := make(chan message)
 	go func() {
