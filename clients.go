@@ -192,7 +192,7 @@ type WriterClient struct {
 }
 
 func NewWriterClient(w io.Writer) WriterClient {
-	return WriterClient{client: NewClient(), w: w, MaxRequests: 4096}
+	return WriterClient{client: NewClient(), w: w, MaxRequests: 16384}
 }
 
 func (c WriterClient) writeResponse(resp Response) error {
