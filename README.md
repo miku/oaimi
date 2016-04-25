@@ -1,3 +1,9 @@
+Note: oaimi is deprectated. For a better experience, please take a look at
+[metha](https://github.com/miku/metha) - it supports incremental harvesting,
+compresses results and has overall a simplified interface and internals.
+
+----
+
 README
 ======
 
